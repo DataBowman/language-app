@@ -1,8 +1,10 @@
 # language-app
 
-A private Spanish-learning app for iOS and Android with two users: a **student** and a **tutor**.
+A private Spanish-learning app for **iOS, Android and the web browser** with two users: a **student** and a **tutor**.
 
-- **Student**: works through lessons that use audio, video and pictures, mostly speaking and looking rather than typing.
+- **Student**: learns in two modes:
+  - **Immersive (deep)**: 20–45 minute Spanish-only lessons built on audio, video and pictures, with speaking answers reviewed by AI and the tutor.
+  - **Quick (shallow)**: 2–5 minute spaced-repetition drills, scored instantly, working offline.
 - **Tutor**: creates lessons (with AI help), reviews the student's recordings, and sees progress over time.
 
 This is meant to be a long-running project. It uses open-source parts and costs as little as possible. **Security** and **not losing data** matter most.
@@ -23,11 +25,13 @@ Foundation / design phase. No application code yet. Start here:
 
 | Concern | Choice |
 |---|---|
-| Mobile app (iOS + Android + web for the tutor) | Expo / React Native, TypeScript |
+| App (iOS + Android + web, both roles) | Expo / React Native + Expo web, TypeScript; platform adapters for native vs browser |
+| Learning modes | One content pool; immersive = authored lessons, quick = sessions assembled on the device from due items |
+| Web hosting | Cloudflare Pages / GitHub Pages (static, HTTPS, PWA) |
 | Backend (database, login, file storage, server functions) | Supabase (open source, can be self-hosted later) |
-| Local storage on the device | SQLite (`expo-sqlite`), offline-first with an upload queue |
+| Local storage | SQLite (`expo-sqlite`; WASM on the web), offline-first with an upload queue. On the web it is only a cache, because the browser may clear it |
 | AI lesson generation / feedback | LLM called only from server functions, behind a provider interface |
-| Speech-to-text | Whisper (on the device or on the server) |
-| Text-to-speech | The phone's built-in Spanish voices (free) |
+| Speech-to-text | Whisper: on the device for native, on the server for the web (and as a fallback) |
+| Text-to-speech | Built-in OS/browser Spanish voices (free); server audio as a fallback |
 | Spaced repetition | FSRS (`ts-fsrs`, open source) |
 | Backups | Nightly GitHub Action → Postgres dump + media copy → Cloudflare R2 / Backblaze B2 |
