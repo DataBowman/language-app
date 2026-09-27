@@ -89,7 +89,7 @@ Each type is declared once in `packages/core` with metadata that the player, the
 | `listen_choose` (audio → pick the meaning) | ✔ | ✔ | ✔ | – | TTS may use server audio |
 | `word_order` | ✔ | ✔ | ✔ | – | |
 | `type_answer` | ✔ | ✔ | ✔ (normalised match) | – | keyboard-friendly on the web |
-| `listen_repeat` | ✔ | ✔ (short) | partly (transcript match) | STT | server STT on the web |
+| `listen_repeat` | ✔ | – (needs speech-to-text) | partly (transcript match) | STT | server STT on the web |
 | `describe_image` | ✔ | – | – | AI + tutor | |
 | `video_response` | ✔ | – | – | AI + tutor | MediaRecorder |
 | `conversation` (turn-based role-play) | ✔ | – | – | AI (LLM + STT) | |

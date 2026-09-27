@@ -11,7 +11,29 @@ This is meant to be a long-running project. It uses open-source parts and costs 
 
 ## Status
 
-Foundation / design phase. No application code yet. Start here:
+Phase 0b foundation is in place: monorepo, domain package with tests, app shell for iOS/Android/web, the first database migration with access-rule tests, CI and backup workflows. Content features wait for the decisions in [CONTENT_FRAMEWORK.md §10](docs/CONTENT_FRAMEWORK.md).
+
+## Quick start
+
+```bash
+corepack enable && pnpm install
+pnpm test && pnpm typecheck
+pnpm --filter mobile web      # opens the app in a browser; no backend needed (development role picker)
+```
+
+Setting up Supabase, inviting users, backups and hosting: [docs/OPERATIONS.md](docs/OPERATIONS.md).
+
+## Repository layout
+
+| Path | What |
+|---|---|
+| `apps/mobile` | Expo app (iOS, Android, web) for both student and tutor |
+| `packages/core` | Pure TypeScript domain logic: lesson schema, exercise types, curriculum graph, feasibility, quality checks |
+| `supabase/` | Config, SQL migrations, RLS tests |
+| `tools/backup` | Backup and restore-test scripts used by the scheduled workflows |
+| `docs/` | Design documents and decision records |
+
+## Documents
 
 | Doc | What it covers |
 |---|---|
@@ -20,6 +42,7 @@ Foundation / design phase. No application code yet. Start here:
 | [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Tables, lesson content format, access rules (provisional) |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Build phases, from the foundation to the full feature set |
 | [docs/COSTS.md](docs/COSTS.md) | What each piece costs and how to keep it near zero |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Running locally, Supabase setup, invitations, backups, hosting |
 | [docs/adr/](docs/adr/) | Architecture Decision Records: why each major choice was made |
 
 ## Planned stack (summary)

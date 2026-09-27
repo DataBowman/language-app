@@ -9,15 +9,16 @@ Each phase ends with something usable. Security and backups come **first**, befo
 - [ ] Finalise [DATA_MODEL.md](DATA_MODEL.md) (goals, objectives, plans, mastery, generation_runs, lexicon) and `LessonContent` v1
 
 ## Phase 0b: Foundation
-- [ ] pnpm monorepo: `apps/mobile` (Expo + expo-router + TypeScript strict, **iOS/Android/web**), `packages/core`
-- [ ] Platform adapter interfaces (`LocalDb`, `Recorder`, `SpeechToText`, `TextToSpeech`, `SecureSession`, `BackgroundSync`) with native + web stubs; a lint rule that stops platform modules being imported outside `src/platform`
-- [ ] i18n set up (en + es), because immersive mode switches the UI to Spanish
-- [ ] CI: typecheck, lint, unit tests, **web build + Playwright smoke test**, migration check against a scratch Postgres
-- [ ] Web deploy (Cloudflare Pages / GitHub Pages) with HTTPS, strict CSP and a PWA manifest
-- [ ] Supabase project; public sign-up **disabled**; two invited accounts (student, tutor); Auth redirect URLs + CORS limited to our origins
-- [ ] Migration `0001_init.sql`: tables and RLS from [DATA_MODEL.md](DATA_MODEL.md) (including `sessions`), plus RLS tests
-- [ ] Nightly backup workflow (pg_dump + media → R2/B2) and a monthly restore-test workflow
-- [ ] Login screen, role-based navigation shell; student home with **Quick** and **Deep** entry points
+- [x] pnpm monorepo: `apps/mobile` (Expo SDK 57 + expo-router + TypeScript strict, **iOS/Android/web**), `packages/core`
+- [x] `packages/core`: exercise-type registry, `LessonContent` v1 schema (+ JSON Schema export for any AI), curriculum graph validation, goal feasibility, deterministic quality checks: 27 unit tests
+- [x] Platform adapter interfaces (`LocalDb`, `Recorder`, `SpeechToText`, `TextToSpeech`, `SecureSession`, `BackgroundSync`); `SecureSession` + `TextToSpeech` implemented; lint rule blocks platform modules outside `src/platform`
+- [x] i18n (en + es); immersive screens switch the UI to Spanish
+- [x] CI: typecheck, lint, unit tests, **web build + Playwright smoke test** (desktop + phone), migrations + RLS tests against Postgres 17
+- [x] Web build with strict CSP headers and a PWA manifest (hosting itself: see [OPERATIONS.md](OPERATIONS.md) §5)
+- [ ] Supabase project; public sign-up **disabled** (done in `config.toml`; dashboard step in [OPERATIONS.md](OPERATIONS.md)); two invited accounts
+- [x] Migration `init`: profiles/roles, tutor↔student links, audit log, RLS + tests. *Content tables wait for Phase 0a.*
+- [x] Nightly backup workflow + monthly restore-test workflow (scripts in `tools/backup`; activate by adding secrets)
+- [x] Sign-in screen (invite-only email code), role-based navigation; student home with **Quick** and **Deep** entry points; tutor home
 
 ## Phase 1: Immersive lesson loop (no AI yet)
 - [ ] `LessonContent` zod schema + exercise-type registry (with mode/auto-score metadata)

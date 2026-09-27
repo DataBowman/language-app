@@ -1,0 +1,25 @@
+node_modules/
+dist/
+coverage/
+*.log
+.DS_Store
+
+# Expo
+.expo/
+web-build/
+apps/mobile/ios/
+apps/mobile/android/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Env / secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Supabase local
+supabase/.branches/
+supabase/.temp/

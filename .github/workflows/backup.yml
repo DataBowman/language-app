@@ -1,0 +1,53 @@
+name: Nightly backup
+
+# Database dump + media copy → off-site S3-compatible bucket (ADR 0005). Also keeps a free-tier
+# Supabase project active. Does nothing until the secrets below are configured.
+on:
+  schedule:
+    - cron: "17 3 * * *" # 03:17 UTC daily
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      BACKUP_S3_ENDPOINT: ${{ secrets.BACKUP_S3_ENDPOINT }}
+      BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
+      BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
+      BACKUP_S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      SUPABASE_S3_ENDPOINT: ${{ secrets.SUPABASE_S3_ENDPOINT }}
+      SUPABASE_S3_REGION: ${{ secrets.SUPABASE_S3_REGION }}
+      SUPABASE_S3_ACCESS_KEY_ID: ${{ secrets.SUPABASE_S3_ACCESS_KEY_ID }}
+      SUPABASE_S3_SECRET_ACCESS_KEY: ${{ secrets.SUPABASE_S3_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Check configuration
+        id: cfg
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_S3_BUCKET" ]; then
+            echo "::notice::Backup secrets not configured yet — skipping (see docs/OPERATIONS.md)."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v5
+        if: steps.cfg.outputs.configured == 'true'
+      - uses: supabase/setup-cli@v1
+        if: steps.cfg.outputs.configured == 'true'
+        with:
+          version: 2.118.0
+      - name: Install rclone
+        if: steps.cfg.outputs.configured == 'true'
+        run: sudo apt-get update -q && sudo apt-get install -y -q rclone
+      - name: Back up
+        if: steps.cfg.outputs.configured == 'true'
+        run: bash tools/backup/backup.sh

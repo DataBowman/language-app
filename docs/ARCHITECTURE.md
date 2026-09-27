@@ -67,7 +67,7 @@ The layers depend on each other in one direction only: **UI → domain → data 
 
 | Layer | Location | May depend on | Must not |
 |---|---|---|---|
-| UI | `apps/mobile/app/**` | domain, repositories (via hooks) | talk to Supabase or SQLite directly |
+| UI | `apps/mobile/src/app/**`, `src/ui/**` | domain, repositories (via hooks) | talk to Supabase or SQLite directly |
 | Domain | `packages/core` | nothing except `zod`, `ts-fsrs` | do any I/O. This keeps it 100% unit-testable and reusable in edge functions |
 | Data | `apps/mobile/src/data/**` | domain, platform adapters, Supabase client | contain business rules or import platform modules directly |
 | Platform | `apps/mobile/src/platform/**` | Expo/native modules, browser APIs | be imported anywhere except the data layer and media UI. **This is the only place that knows iOS/Android/web differ** |
@@ -84,10 +84,13 @@ Two interfaces keep vendors swappable:
 language-app/
 ├── apps/
 │   └── mobile/                 Expo app: iOS, Android and web (student + tutor on every platform)
-│       ├── app/                expo-router screens: (student)/immersive/…, (student)/quick/…,
-│       │                       (tutor)/…, (auth)/…
+│       ├── e2e/                Playwright browser tests (desktop + phone viewports)
+│       ├── public/             web-only: index.html, PWA manifest, security headers (_headers)
 │       └── src/
-│           ├── data/           repositories, sync engine, MediaStore
+│           ├── app/            expo-router screens: sign-in, student/{index,quick,immersive}, tutor/…
+│           ├── auth/           session provider (invite-only email code; dev role picker without a backend)
+│           ├── lib/            Supabase client
+│           ├── data/           repositories, sync engine, MediaStore (Phase 1)
 │           ├── platform/       adapters: *.native.ts / *.web.ts
 │           ├── media/          recording UI, camera, compression
 │           ├── i18n/           UI strings (en + es; immersive mode switches the UI to es)
@@ -100,7 +103,8 @@ language-app/
 │   ├── migrations/             versioned SQL (schema + RLS), the only way the schema changes
 │   ├── functions/              edge functions: mcp-curriculum, ai-orchestrator, assess-attempt, transcribe
 │   ├── seed/                   curriculum graph (objectives, prerequisites), lexicon
-│   └── seed.sql                development seed data
+│   ├── tests/                  RLS tests run against plain Postgres (run.sh + Supabase stub)
+│   └── config.toml             local Supabase config (sign-up disabled)
 ├── tools/
 │   └── backup/                 backup + restore-test scripts
 ├── .github/workflows/          CI (typecheck, lint, tests, web build + Playwright, migration check),
