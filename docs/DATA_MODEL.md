@@ -1,5 +1,7 @@
 # Data model
 
+> **Provisional.** The entities the AI needs (goals, curriculum graph, plans, mastery, provenance, lexicon) are defined by [CONTENT_FRAMEWORK.md §8](CONTENT_FRAMEWORK.md). This schema will be finalised after that framework's open questions (§10) are answered.
+
 This is a draft. It becomes `supabase/migrations/0001_init.sql` in Phase 0. All ids are UUIDs made by the client. All times are `timestamptz` in UTC.
 
 ## Tables

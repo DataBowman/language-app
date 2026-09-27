@@ -16,7 +16,8 @@ Foundation / design phase. No application code yet. Start here:
 | Doc | What it covers |
 |---|---|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The overall design: components, what runs on the device and what runs on the server, data flow, security, backups |
-| [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Tables, lesson content format, access rules |
+| [docs/CONTENT_FRAMEWORK.md](docs/CONTENT_FRAMEWORK.md) | **What good AI-generated content needs**: goals, learner model, curriculum graph, adaptive planning, quality checks, translation. Decide this before the schema |
+| [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Tables, lesson content format, access rules (provisional) |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Build phases, from the foundation to the full feature set |
 | [docs/COSTS.md](docs/COSTS.md) | What each piece costs and how to keep it near zero |
 | [docs/adr/](docs/adr/) | Architecture Decision Records: why each major choice was made |
@@ -30,7 +31,8 @@ Foundation / design phase. No application code yet. Start here:
 | Web hosting | Cloudflare Pages / GitHub Pages (static, HTTPS, PWA) |
 | Backend (database, login, file storage, server functions) | Supabase (open source, can be self-hosted later) |
 | Local storage | SQLite (`expo-sqlite`; WASM on the web), offline-first with an upload queue. On the web it is only a cache, because the browser may clear it |
-| AI lesson generation / feedback | LLM called only from server functions, behind a provider interface |
+| AI lesson generation / feedback | Any provider: an MCP server exposes the curriculum data + safe tools; a thin model adapter; switching providers is decided by an eval set |
+| Curriculum | A graph of objectives (CEFR + Instituto Cervantes PCIC) + a versioned plan that is re-calculated from the goal, deadline and measured pace |
 | Speech-to-text | Whisper: on the device for native, on the server for the web (and as a fallback) |
 | Text-to-speech | Built-in OS/browser Spanish voices (free); server audio as a fallback |
 | Spaced repetition | FSRS (`ts-fsrs`, open source) |

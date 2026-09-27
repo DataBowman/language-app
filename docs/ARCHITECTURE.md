@@ -14,6 +14,7 @@
 | G8 | Security matters | No public sign-up, row-level security, secrets kept only on the server, private media storage |
 | G9 | Data loss is hard to recover from | Immutable records, idempotent uploads, nightly off-site backups that are regularly test-restored |
 | G10 | Two learning modes: **immersive (deep)** and **quick (shallow)** | One content pool with two session types; quick sessions are assembled on the device with no AI or tutor needed ([ADR 0007](adr/0007-two-learning-modes.md)) |
+| G11 | AI is interchangeable and adapts the curriculum to performance and goals | An MCP server is the only interface between data and AI; the curriculum is a graph + a re-plannable plan ([CONTENT_FRAMEWORK.md](CONTENT_FRAMEWORK.md), [ADR 0008](adr/0008-mcp-provider-agnostic-ai.md)) |
 
 Privacy is **not** a primary constraint. That lets us use hosted AI APIs freely. It does not relax G8.
 
@@ -47,12 +48,15 @@ Privacy is **not** a primary constraint. That lets us use hosted AI APIs freely.
 │   Postgres ── tables + Row Level Security (RLS) + SQL migrations kept in git          │
 │   Storage ── private buckets: lesson-media, attempt-media (reached via signed URLs)   │
 │   Edge Functions (Deno/TS) ── the only place that holds AI API keys                   │
-│       generate-lesson   assess-attempt   transcribe (optional)                        │
+│       mcp-curriculum (MCP server: resources, tools, prompts; acts under RLS)          │
+│       ai-orchestrator (MCP client + model adapter)   assess-attempt   transcribe      │
 └───────────────┬───────────────────────────────────────────────┬───────────────────────┘
                 │                                               │
         ┌───────▼────────┐                             ┌────────▼─────────────────────┐
-        │ AI providers   │                             │ Backups (GitHub Action,      │
-        │ LLM, Whisper   │                             │ nightly): pg_dump + media    │
+        │ Any AI provider│                             │ Backups (GitHub Action,      │
+        │ via adapter +  │
+        │ tutor's own    │
+        │ MCP client     │                             │ nightly): pg_dump + media    │
         └────────────────┘                             │ → R2/B2, kept 30+ days       │
                                                        └──────────────────────────────┘
 ```
@@ -72,7 +76,7 @@ The layers depend on each other in one direction only: **UI → domain → data 
 Two interfaces keep vendors swappable:
 
 - **`MediaStore`**: `put(localUri) → mediaId`, `getUrl(mediaId)`. It starts on Supabase Storage and can move to R2/S3 later without touching the UI.
-- **`AiProvider`** (server side): `generateLesson(spec)`, `assess(attempt)`, `transcribe(audio)`. It starts with one LLM vendor. Swapping vendors or models is a config change.
+- **MCP curriculum server + `LlmClient` adapter** (server side, [ADR 0008](adr/0008-mcp-provider-agnostic-ai.md)): all AI work goes through task-shaped MCP tools and resources. The model is reached through a thin adapter that only uses features every provider shares. Changing provider or model is configuration plus an eval run.
 
 ### Planned repository layout
 
@@ -89,10 +93,13 @@ language-app/
 │           ├── i18n/           UI strings (en + es; immersive mode switches the UI to es)
 │           └── ui/             shared, responsive components
 ├── packages/
-│   └── core/                   lesson schema (zod), SessionComposer, scoring, FSRS, progress: pure TS
+│   ├── core/                   lesson schema (zod), SessionComposer, scoring, FSRS, progress,
+│   │                           quality checks, mastery + pace calculations: pure TS
+│   └── ai/                     LlmClient adapters, prompt templates (versioned), eval harness
 ├── supabase/
 │   ├── migrations/             versioned SQL (schema + RLS), the only way the schema changes
-│   ├── functions/              edge functions: generate-lesson, assess-attempt, transcribe
+│   ├── functions/              edge functions: mcp-curriculum, ai-orchestrator, assess-attempt, transcribe
+│   ├── seed/                   curriculum graph (objectives, prerequisites), lexicon
 │   └── seed.sql                development seed data
 ├── tools/
 │   └── backup/                 backup + restore-test scripts
@@ -133,27 +140,30 @@ A general-purpose sync engine (CRDTs, PowerSync, etc.) would be overkill here. T
 
 ## 5. Key flows
 
-### 5.1 Generating a lesson (tutor)
+### 5.1 Planning and generating lessons (see [CONTENT_FRAMEWORK.md](CONTENT_FRAMEWORK.md))
 
 ```
-Tutor fills in: topic, CEFR level, focus (e.g. "preterite vs imperfect"), exercise types
-   │
-   ▼
-Edge function generate-lesson
-   ├─ adds context: the student's weak vocabulary/grammar (from the attempt log + FSRS state)
-   ├─ calls the LLM with the JSON schema for the lesson format (structured output)
-   ├─ validates the reply with the zod LessonContent schema; one retry if invalid
-   ├─ stores it as lessons(status='draft', version=1, generation metadata: model, prompt hash)
-   └─ applies a rate limit (e.g. max N generations per day) → protects against a surprise bill
-   │
-   ▼
-Tutor reviews and edits in the app → publishes (the published version is immutable)
-   │
-   ▼
-Student's device pulls the lesson and prefetches its media
+Goal + learner snapshot + curriculum graph ──► Plan (versioned sequence of objectives)
+        ▲                                             │
+        │  evidence: attempts, assessments,           │ next objectives
+        │  FSRS, tutor ratings                        ▼
+        │                              ai-orchestrator (MCP client + LlmClient, any provider)
+        │                                ├─ reads MCP resources: framework, schema, snapshot, plan
+        │                                ├─ model drafts a lesson targeted at the planned objectives
+        │                                ├─ tool check_lesson → deterministic checks (coverage, load, keys…)
+        │                                │     failures go back to the model once
+        │                                ├─ second-opinion language review (a different model)
+        │                                └─ tool save_lesson_draft → draft + generation_run provenance
+        │                                             │
+        │                              Tutor reviews/edits → publishes (immutable version)
+        │                                             │
+        └──────────── student studies (immersive / quick) ◄──┘
+
+Weekly, or on a trigger (pace drift, plateau, goal change):
+   weekly_plan_review prompt → propose_plan_revision → tutor approves → new plan version
 ```
 
-AI output is **never shown to the student without the tutor's approval**. This guards against wrong Spanish and wasted sessions.
+The tutor can also connect their own MCP-capable AI client to the same server and do any of this conversationally. The same tools and the same limits apply. AI output is **never shown to the student without the tutor's approval**, and no AI tool can publish or delete anything.
 
 ### 5.2 The two learning modes (student)
 
