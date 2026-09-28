@@ -22,7 +22,7 @@ env:
   # Inlined into the app at build time. The publishable key is designed to be public: every table is
   # protected by Row Level Security. Never put the service-role key here.
   EXPO_PUBLIC_SUPABASE_URL: https://${{ vars.SUPABASE_PROJECT_REF || 'zppkafqzmamwnqozrchz' }}.supabase.co
-  EXPO_PUBLIC_SUPABASE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+  EXPO_PUBLIC_SUPABASE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY || secrets.SUPABASE_PUBLISHABLE_KEY }}
   CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
 
 jobs:

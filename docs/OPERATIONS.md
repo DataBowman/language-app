@@ -131,8 +131,16 @@ Follow `restore-test.sh` step by step, but point the final `psql` commands at th
 The **Deploy web app** workflow builds the app against the hosted project and publishes it to Cloudflare Pages. It runs on every merge to `main` that changes the app, and on demand. On its first run it creates the Pages project `language-app`; the site address is shown at the end of the workflow log (usually `https://language-app.pages.dev`).
 
 One-time setup:
-1. **Cloudflare API token:** Cloudflare dashboard → profile icon → *My Profile → API Tokens → Create Token → Custom token*. Permission **Account → Cloudflare Pages → Edit**, limited to your account. Add it as the GitHub **secret** `CLOUDFLARE_API_TOKEN`.
-2. **Publishable key:** Supabase → *Project Settings → API Keys* → the publishable (or legacy `anon`) key. Add it as the GitHub **variable** (not secret) `SUPABASE_PUBLISHABLE_KEY` under *Settings → Secrets and variables → Actions → Variables*.
+1. **Cloudflare API token** (per Cloudflare's *Use Direct Upload with continuous integration* guide):
+   - Open *My Profile → API Tokens* (personal token) or *Manage Account → API Tokens* (account-owned token).
+   - Select **Create Token**, then under **Custom Token** select **Get started**.
+   - Name it `github-pages-deploy`. Under **Permissions**, choose **Account → Cloudflare Pages → Edit**.
+   - Select **Continue to summary → Create Token** and copy the token (it starts with `cfut_`).
+   - In GitHub, add it as the **secret** `CLOUDFLARE_API_TOKEN`.
+2. **Publishable key** (per Supabase's *API keys* guide):
+   - In Supabase, open **Settings → API Keys** and copy the publishable key (`sb_publishable_…`), or the legacy `anon` key.
+   - Supabase documents it as safe to expose.
+   - In GitHub, open *Settings → Secrets and variables → Actions → Variables* tab → **New repository variable**, and add it as `SUPABASE_PUBLISHABLE_KEY`.
 
 The workflow refuses to publish a build that does not contain the Supabase URL, so the development role picker can never go live.
 
