@@ -49,7 +49,11 @@ And a **context** for anything about an exercise: `lessonId`, `lessonVersion`, `
 | **Learner voice** | `session_rated` | too easy / about right / too hard, enjoyed yes / no, optional note |
 | | `content_reported` | "this looks wrong" + reason, per exercise |
 | | `practice_logged` | study **outside the app** (conversation, series, podcast, reading) with minutes |
-| **Tutor** | `tutor_observation` | objectives or words observed in a live lesson: `struggling` / `progressing` / `secure`, note, minutes |
+| **Challenges** | `challenge_started` | challenge, optional target date (e.g. the trip) |
+| | `challenge_rehearsed` | in-app rehearsal, linked to the assessed answer |
+| | `challenge_completed` | `real_world` or `in_app`, confidence 1–5, reflection, optional recording |
+| **Tutor** | `tutored_session_logged` | minutes, format, each suggested/added item as covered / partly / not covered (+ level), free note or voice note, **seconds taken to log** |
+| | `tutor_observation` | objectives or words: `struggling` / `progressing` / `secure`, note; link to the session; origin `typed` or `confirmed_suggestion` |
 | **Product** | `screen_viewed` | route: which parts of the app are actually used |
 
 Not recorded on purpose:
@@ -75,6 +79,10 @@ Not recorded on purpose:
 | **Trust in AI grading / choosing AI providers** | AI vs tutor `assessment_recorded` on the same attempt → agreement rate per model |
 | **Honest "was it too hard?" tuning** | `session_rated` vs measured accuracy |
 | **Blending classroom and app** | `tutor_observation` counts as evidence alongside in-app answers |
+| **Suggested plan for each tutored session** (built now: `suggestTutoredSession`) | Challenge gaps, struggles, low accuracy, recurring errors, recognised-but-not-spoken objectives, repeated look-ups |
+| **Challenge readiness and next step** (built now: `challengeReadiness`) | Objective evidence + tutor judgement |
+| **Curated student progress** (built now: `buildStudentProgress`) | Activity by day, word evidence, challenge readiness |
+| **Is the tutor's logging getting faster?** | `secondsToLog`, share of `confirmed_suggestion` vs `typed` |
 | **Deciding which features to build next** | `screen_viewed`, mode split, completion rates, and how often each exercise type is avoided or skipped |
 
 ## 4. Derived measures (calculated, never stored as truth)
@@ -88,7 +96,8 @@ Defined in code (`packages/core/src/evidence.ts` for the first ones) and later a
 
 ## 5. Security and integrity
 
-- Students can only **add** events for themselves; tutors can read their students' events; nobody can change or delete them (RLS, tested).
+- Students can only **add** events about themselves and **cannot read the raw ledger** (they get curated progress). Tutors read everything about their own students and record sessions, observations and their own assessments for them. Nobody can change or delete events (RLS and a trigger, tested).
+- A re-uploaded event is refused as a duplicate (primary key, error 23505); the upload queue treats that as "already delivered".
 - Payloads are validated against the zod schema in the app. The database also rejects unknown event types and oversized payloads (16 KB).
 - Events are part of the nightly backup like everything else.
 - The duplicate-safe id and the device counter make offline upload and retry safe (ADR 0003).
@@ -97,8 +106,8 @@ Defined in code (`packages/core/src/evidence.ts` for the first ones) and later a
 
 `learning_events` becomes the **raw ledger**. The earlier provisional `sessions`, `attempts` and `assessments` tables in [DATA_MODEL.md](DATA_MODEL.md) become **projections** (SQL views or rebuildable tables) over it. There is one source of truth for "what happened", and everything else can be rebuilt from it.
 
-## 7. Open questions
+## 7. Decisions (2026-09-29)
 
-1. Should the student see their own raw analytics (e.g. "you look up *madrugar* a lot"), or only curated progress?
-2. Should `tutor_observation` from live lessons count towards mastery equally with in-app evidence, or only as a hint?
-3. Any additional outside-the-app activities worth logging (e.g. trips, classes)?
+1. **The student sees curated progress only**: streak, minutes, words, challenge readiness and next steps, and the tutor's feedback. **The tutor sees everything**, and can ask an AI with the analytics as context. The AI acts with the tutor's permissions ([ADR 0010](adr/0010-learning-data-visibility.md)).
+2. **Tutored sessions are logged by the tutor** with minimal effort. A suggested plan is shown beforehand; afterwards the tutor confirms what was covered and adds an optional free note or voice note ([ADR 0011](adr/0011-tutored-sessions.md)). Tutor observations count as evidence, and a tutor's *secure* or *struggling* judgement overrides app evidence for readiness.
+3. **Scenario challenges** ("greet a Spanish colleague", "travel to a Spanish-speaking country") give real-world goals with measurable readiness ([ADR 0012](adr/0012-scenario-challenges.md)).

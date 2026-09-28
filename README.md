@@ -5,7 +5,8 @@ A private Spanish-learning app for **iOS, Android and the web browser** with two
 - **Student**: learns in two modes:
   - **Immersive (deep)**: 20–45 minute Spanish-only lessons built on audio, video and pictures, with speaking answers reviewed by AI and the tutor.
   - **Quick (shallow)**: 2–5 minute spaced-repetition drills, scored instantly, working offline.
-- **Tutor**: creates lessons (with AI help), reviews the student's recordings, and sees progress over time.
+- **Tutor**: creates lessons (with AI help), reviews the student's recordings, logs live sessions in seconds from a suggested plan, and sees full analytics (also through their own AI).
+- **Challenges**: real-world goals (greet a colleague, travel) with readiness measured from evidence.
 
 This is meant to be a long-running project. It uses open-source parts and costs as little as possible. **Security** and **not losing data** matter most.
 
@@ -28,7 +29,7 @@ Setting up Supabase, inviting users, backups and hosting: [docs/OPERATIONS.md](d
 | Path | What |
 |---|---|
 | `apps/mobile` | Expo app (iOS, Android, web) for both student and tutor |
-| `packages/core` | Pure TypeScript domain logic: lesson schema, exercise types, curriculum graph, feasibility, quality checks, learning events + evidence |
+| `packages/core` | Pure TypeScript domain logic: lesson schema, exercise types, curriculum graph, feasibility, quality checks, learning events + evidence, challenges, tutored-session suggestions, curated progress |
 | `supabase/` | Config, SQL migrations, RLS tests |
 | `tools/backup` | Backup and restore-test scripts used by the scheduled workflows |
 | `docs/` | Design documents and decision records |

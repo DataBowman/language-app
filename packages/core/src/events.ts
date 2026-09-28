@@ -110,12 +110,54 @@ export const EVENT_PAYLOADS = {
     note,
   }),
 
-  // ─── Tutor ───
+  // ─── Challenges (ADR 0012): real-world scenarios such as greeting a colleague or travelling ───
+  challenge_started: z.object({ challengeId: uuid, targetDate: z.iso.date().optional() }),
+  /** An in-app rehearsal (e.g. a role-play), linked to the answer event that was assessed. */
+  challenge_rehearsed: z.object({ challengeId: uuid, answerEventId: uuid, stepId: z.string().max(64).optional() }),
+  /** Done for real (or passed in the app); the learner's own account of how it went. */
+  challenge_completed: z.object({
+    challengeId: uuid,
+    where: z.enum(['real_world', 'in_app']),
+    confidence: z.number().int().min(1).max(5),
+    reflection: z.string().max(2000).optional(),
+    mediaId: uuid.optional(),
+  }),
+
+  // ─── Tutor (ADR 0011) ───
+  /**
+   * A live tutored session. Built mostly by confirming a suggested plan: each item is one tap
+   * (covered / partly / not covered) with an optional level; notes stay free-form (text or voice).
+   */
+  tutored_session_logged: z.object({
+    minutes: z.number().int().min(1).max(600),
+    format: z.enum(['in_person', 'video', 'phone']),
+    suggestionId: uuid.optional().describe('The suggested session plan the tutor started from'),
+    items: z
+      .array(
+        z.object({
+          objectiveId: OBJECTIVE_ID.optional(),
+          lemma: lemma.optional(),
+          challengeId: uuid.optional(),
+          coverage: z.enum(['covered', 'partly', 'not_covered']),
+          level: z.enum(['struggling', 'progressing', 'secure']).optional(),
+          suggested: z.boolean().describe('Came from the suggested plan (vs added by the tutor)'),
+        }),
+      )
+      .max(50)
+      .default([]),
+    note: z.string().max(5000).optional(),
+    voiceNoteMediaId: uuid.optional(),
+    /** How long logging took; the tutor's time is the scarcest resource, so we measure it. */
+    secondsToLog: seconds.optional(),
+  }),
   tutor_observation: z.object({
     objectiveIds: z.array(OBJECTIVE_ID).default([]),
     lemmas: z.array(lemma).default([]),
     level: z.enum(['struggling', 'progressing', 'secure']),
     minutes: z.number().int().min(1).max(600).optional(),
+    tutoredSessionEventId: uuid.optional(),
+    /** typed = entered by hand; confirmed = accepted from an AI/app suggestion (measures time saved). */
+    origin: z.enum(['typed', 'confirmed_suggestion']).default('typed'),
     note,
   }),
 
@@ -127,7 +169,7 @@ export type EventType = keyof typeof EVENT_PAYLOADS;
 export const EVENT_TYPES = Object.keys(EVENT_PAYLOADS) as EventType[];
 
 /** Events a tutor may record about a student; every other type is recorded by the learner themself. */
-export const TUTOR_EVENT_TYPES = ['tutor_observation', 'assessment_recorded'] as const satisfies readonly EventType[];
+export const TUTOR_EVENT_TYPES = ['tutored_session_logged', 'tutor_observation', 'assessment_recorded'] as const satisfies readonly EventType[];
 
 const Envelope = {
   id: uuid,

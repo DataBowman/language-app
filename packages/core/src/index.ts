@@ -9,3 +9,6 @@ export * from './text';
 export * from './answers';
 export * from './events';
 export * from './evidence';
+export * from './challenges';
+export * from './suggestions';
+export * from './progress';

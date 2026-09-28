@@ -44,16 +44,12 @@ set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-00000000000b"}';
 
 do $$ begin execute pg_temp.ev('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000b',
   'exercise_answered', '{"result":"wrong","score":0}', received => '2000-01-01T00:00:00Z'); end $$;
-select pg_temp.assert((select actor_id from public.learning_events where id = '10000000-0000-0000-0000-000000000001') = '00000000-0000-0000-0000-00000000000b',
-  'actor defaults to the signed-in user');
-select pg_temp.assert((select received_at from public.learning_events where id = '10000000-0000-0000-0000-000000000001') > now() - interval '1 minute',
-  'a client-supplied received_at is replaced by the server time');
 
--- Retrying the same upload is harmless.
-insert into public.learning_events (id, type, learner_id, occurred_at, seq, device_id, platform, app_version, tz_offset_min, payload)
-values ('10000000-0000-0000-0000-000000000001', 'exercise_answered', '00000000-0000-0000-0000-00000000000b', now(), 1, 'dev-1', 'web', '0.1.0', 60, '{}')
-on conflict (id) do nothing;
-select pg_temp.assert((select count(*) from public.learning_events) = 1, 'duplicate upload is ignored');
+-- Retrying the same upload is harmless: the duplicate is refused by the primary key (23505), which the
+-- upload queue treats as "already delivered". (ON CONFLICT is not used: it needs read access, which
+-- learners do not have since migration 0003.)
+select pg_temp.assert_fails(pg_temp.ev('10000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-00000000000b',
+  'exercise_answered', '{}'), '23505', 'a re-uploaded event is rejected as a duplicate, not stored twice');
 
 select pg_temp.assert_fails(pg_temp.ev('10000000-0000-0000-0000-000000000002', '00000000-0000-0000-0000-00000000000c', 'screen_viewed', '{}'),
   '42501', 'student cannot record events about another student');
@@ -74,6 +70,13 @@ select pg_temp.assert_fails(pg_temp.ev('10000000-0000-0000-0000-000000000009', '
 select pg_temp.assert_fails($$update public.learning_events set payload = '{}'$$, '42501', 'student cannot edit events');
 select pg_temp.assert_fails($$delete from public.learning_events$$, '42501', 'student cannot delete events');
 commit;
+
+-- Checked as admin: since migration 0003, learners cannot read the raw ledger (ADR 0010).
+select pg_temp.assert((select actor_id from public.learning_events where id = '10000000-0000-0000-0000-000000000001') = '00000000-0000-0000-0000-00000000000b',
+  'actor defaults to the signed-in user');
+select pg_temp.assert((select received_at from public.learning_events where id = '10000000-0000-0000-0000-000000000001') > now() - interval '1 minute',
+  'a client-supplied received_at is replaced by the server time');
+select pg_temp.assert((select count(*) from public.learning_events) = 1, 'duplicate upload is ignored');
 
 -- ─── Tutor T ──────────────────────────────────────────────────────────────────────────────────
 begin;

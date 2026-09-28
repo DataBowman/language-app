@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { EVENT_TYPES, LearningEvent, TUTOR_EVENT_TYPES } from '../src';
 import { answered, ctx, envelope } from './event-fixtures';
@@ -40,7 +40,17 @@ describe('LearningEvent', () => {
       session_rated: { difficulty: 'about_right', enjoyed: true },
       content_reported: { ctx: c, reason: 'audio_problem' },
       practice_logged: { activity: 'conversation', minutes: 45 },
-      tutor_observation: { objectiveIds: ['gr.ser_estar'], level: 'struggling' },
+      tutor_observation: { objectiveIds: ['gr.ser_estar'], level: 'struggling', origin: 'confirmed_suggestion' },
+      tutored_session_logged: {
+        minutes: 60,
+        format: 'in_person',
+        items: [{ objectiveId: 'gr.ser_estar', coverage: 'covered', level: 'progressing', suggested: true }],
+        note: 'Practised ser/estar with photos of family.',
+        secondsToLog: 25,
+      },
+      challenge_started: { challengeId: '3f1c2b1e-8a4d-4c7e-9f00-1234567890ab', targetDate: '2027-03-01' },
+      challenge_rehearsed: { challengeId: '3f1c2b1e-8a4d-4c7e-9f00-1234567890ab', answerEventId: '3f1c2b1e-8a4d-4c7e-9f00-1234567890ac' },
+      challenge_completed: { challengeId: '3f1c2b1e-8a4d-4c7e-9f00-1234567890ab', where: 'real_world', confidence: 4, reflection: 'Said hola to Marta!' },
       screen_viewed: { route: '/student' },
     };
     expect(Object.keys(examples).sort()).toEqual([...EVENT_TYPES].sort());
@@ -51,8 +61,10 @@ describe('LearningEvent', () => {
   });
 
   it('matches the event types and tutor rules enforced by the database', () => {
-    const sql = readFileSync(new URL('../../../supabase/migrations/20260928000000_learning_events.sql', import.meta.url), 'utf8');
-    const check = /check \(type in \(([\s\S]*?)\)\)/.exec(sql)?.[1] ?? '';
+    // The latest definition wins: migrations are applied in file-name order.
+    const dir = new URL('../../../supabase/migrations/', import.meta.url);
+    const sql = readdirSync(dir).filter((f) => f.endsWith('.sql')).sort().map((f) => readFileSync(new URL(f, dir), 'utf8')).join('\n');
+    const check = [...sql.matchAll(/check \(type in \(([\s\S]*?)\)\)/g)].at(-1)?.[1] ?? '';
     const dbTypes = [...check.matchAll(/'([a-z_]+)'/g)].map((m) => m[1]);
     expect(dbTypes.sort()).toEqual([...EVENT_TYPES].sort());
     for (const t of TUTOR_EVENT_TYPES) expect(sql).toContain(`'${t}'`);

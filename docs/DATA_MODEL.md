@@ -63,6 +63,15 @@ audit_log           filled by triggers on lessons/assignments/profiles
 
 Progress is **views** (for example `v_student_skill_progress`, `v_weekly_activity`, `v_immersive_quality`, `v_quick_retention`), all split by `sessions.mode`, calculated from `attempts` and `assessments`. There is no stored "progress" counter that could drift or become corrupted.
 
+challenges          tutor-approved scenario definitions (ADR 0012), versioned like lessons
+  id · version · status ('draft'|'published'|'archived') · content jsonb (Challenge, packages/core)
+  created_by · created_at · updated_at · deleted_at            PK (id, version)
+
+suggestions         mutable workflow state (not facts): suggested session plans and AI-proposed
+                    observations waiting for the tutor (ADR 0011)
+  id · learner_id · kind ('session_plan'|'observation_proposal'|'challenge_draft')
+  content jsonb · status ('pending'|'accepted'|'rejected'|'expired') · created_at · decided_at
+
 ## LessonContent (JSON, validated with zod in `packages/core`)
 
 ```jsonc
@@ -115,5 +124,8 @@ Deny by default. Every table has RLS enabled.
 | assessments | read those on own attempts | insert `source='tutor'` for their students; read |
 | review_items | read/write own | read their students' items |
 | audit_log | none | read |
+| learning_events | **insert own facts only; no read** (curated progress instead, ADR 0010) | read their students' + own; insert sessions/observations/tutor assessments for their students |
+| challenges | read published | full access to their own |
+| suggestions | none | full access for their students |
 
 `source='ai'` assessments are written only by edge functions using the service role, never directly by clients.

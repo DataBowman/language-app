@@ -44,6 +44,8 @@ export interface EvidenceSummary {
   errors: Map<ErrorTag, number>;
   sessions: { started: number; completed: number; abandoned: number; activeSeconds: number };
   outsidePracticeMinutes: number;
+  /** Local day (YYYY-MM-DD) → active seconds in the app that day; days with any answer are present. */
+  activityByDay: Map<string, number>;
 }
 
 const PRODUCTION_TYPES = new Set<ExerciseType>(['type_answer', 'describe_image', 'video_response', 'conversation']);
@@ -84,6 +86,8 @@ export function summarizeEvidence(events: readonly LearningEvent[]): EvidenceSum
   const errors = new Map<ErrorTag, number>();
   const sessions = { started: 0, completed: 0, abandoned: 0, activeSeconds: 0 };
   let outsidePracticeMinutes = 0;
+  const activityByDay = new Map<string, number>();
+  const addActivity = (day: string, secs: number) => activityByDay.set(day, (activityByDay.get(day) ?? 0) + secs);
 
   const lemmaOf = (l: string) => {
     let e = lemmas.get(l);
@@ -122,6 +126,7 @@ export function summarizeEvidence(events: readonly LearningEvent[]): EvidenceSum
         if (e.payload.outcome === 'completed') sessions.completed++;
         if (e.payload.outcome === 'abandoned') sessions.abandoned++;
         sessions.activeSeconds += e.payload.activeSeconds;
+        addActivity(localDay(e), e.payload.activeSeconds);
         break;
       case 'practice_logged':
         outsidePracticeMinutes += e.payload.minutes;
@@ -164,6 +169,7 @@ export function summarizeEvidence(events: readonly LearningEvent[]): EvidenceSum
   }
 
   for (const s of scored) {
+    addActivity(s.day, 0);
     for (const l of s.ctx.lemmas) {
       const score = s.lemmaScores?.[l] ?? s.score;
       const le = lemmaOf(l);
@@ -203,5 +209,6 @@ export function summarizeEvidence(events: readonly LearningEvent[]): EvidenceSum
     errors,
     sessions,
     outsidePracticeMinutes,
+    activityByDay,
   };
 }

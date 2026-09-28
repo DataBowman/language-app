@@ -40,6 +40,10 @@ The key design choice: **the curriculum is not a fixed list of lessons.** It is 
 
 A student can have more than one goal (for example "long-term B2" + "trip in March"). Exactly one goal is **active** for planning at a time; others are paused.
 
+### Scenario challenges ([ADR 0012](adr/0012-scenario-challenges.md))
+
+Goals are made concrete through **challenges**: real situations such as *greet a Spanish-speaking colleague* or *travel to a Spanish-speaking country*. Each challenge is split into steps linked to objectives, with key phrases, an in-app rehearsal and success criteria. The planner gives priority to objectives of active challenges, and a challenge can carry its own target date. Readiness is derived from evidence (`challengeReadiness`). The goal is to **do it for real**, then reflect (`challenge_completed`).
+
 ### Feasibility check (done by code, before any AI is involved)
 
 ```

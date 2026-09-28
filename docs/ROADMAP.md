@@ -20,6 +20,7 @@ Each phase ends with something usable. Security and backups come **first**, befo
 - [x] Nightly backup workflow + monthly restore-test workflow (scripts in `tools/backup`; activate by adding secrets)
 - [x] Sign-in screen (invite-only email code), role-based navigation; student home with **Quick** and **Deep** entry points; tutor home
 - [x] Learning event ledger ([ADR 0009](adr/0009-learning-event-ledger.md)): event schema, `learning_events` table + RLS/immutability tests, answer classification, first evidence summaries; exercises tagged with lemmas and misconceptions
+- [x] Data visibility, tutored sessions and challenges (ADRs 0010–0012): students can't read the raw ledger; tutored-session and challenge events; `suggestTutoredSession`, `sessionLogDraft`, `challengeReadiness`, `buildStudentProgress`, two starter challenge templates
 
 ## Phase 1: Immersive lesson loop (no AI yet)
 - [ ] `LessonContent` zod schema + exercise-type registry (with mode/auto-score metadata)
@@ -28,6 +29,9 @@ Each phase ends with something usable. Security and backups come **first**, befo
 - [ ] **Emit learning events from day one** (session, presented/answered with latency, hints, replays, lookups, skips, session rating, report problem, screen views) through the outbox; tutor can log live-lesson observations
 - [ ] Tutor: create or edit a lesson by hand, attach photos, assign it to the student
 - [ ] Tutor: review queue, where they listen to recordings and leave text/voice feedback
+- [ ] Tutor: **suggested session plan** and **pre-filled session log** (confirm, untick, one-tap levels, free/voice note)
+- [ ] Student: **curated progress** screen (server function running `buildStudentProgress`), challenges list with readiness, "I did it!" completion with reflection
+- [ ] Tables `challenges` (+ the two templates, tutor-reviewed) and `suggestions`
 - **Outcome:** real deep lessons between the student and tutor, on phone or browser
 
 ## Phase 2: Quick mode + spaced repetition (still no AI; cheap)
@@ -43,7 +47,10 @@ Each phase ends with something usable. Security and backups come **first**, befo
 - [ ] Quality checks Q1–Q10 in `packages/core`; second-opinion review by a different model
 - [ ] `transcribe` edge function (the only speech-to-text on the web; fallback on native) + on-device whisper on native
 - [ ] `assess-attempt` AI feedback on immersive answers; tutor draft review / publish flow
-- [ ] Optional `conversation` exercise (turn-based AI role-play)
+- [ ] Optional `conversation` exercise (turn-based AI role-play), used for **challenge rehearsals**
+- [ ] Tutor's AI with analytics context via MCP (caller-scoped): `learner://…/analytics`, `query_learner_events`, `prepare_tutored_session`, `weekly_summary_for_tutor`
+- [ ] Voice/free note → AI-proposed observations → tutor accepts with one tap
+- [ ] AI drafts new challenges from the student's own description; tutor approves
 
 ## Phase 4: Adaptive curriculum
 - [ ] Mastery + velocity calculations; goal feasibility and projected completion date
