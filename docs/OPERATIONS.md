@@ -126,7 +126,17 @@ What the restore test does (`tools/backup/restore-test.sh`):
 
 Follow `restore-test.sh` step by step, but point the final `psql` commands at the new or recovered project's connection string instead of the throwaway database.
 
-## 5. Web hosting (when ready)
+## 5. Web hosting (Cloudflare Pages)
+
+The **Deploy web app** workflow builds the app against the hosted project and publishes it to Cloudflare Pages. It runs on every merge to `main` that changes the app, and on demand. On its first run it creates the Pages project `language-app`; the site address is shown at the end of the workflow log (usually `https://language-app.pages.dev`).
+
+One-time setup:
+1. **Cloudflare API token:** Cloudflare dashboard → profile icon → *My Profile → API Tokens → Create Token → Custom token*. Permission **Account → Cloudflare Pages → Edit**, limited to your account. Add it as the GitHub **secret** `CLOUDFLARE_API_TOKEN`.
+2. **Publishable key:** Supabase → *Project Settings → API Keys* → the publishable (or legacy `anon`) key. Add it as the GitHub **variable** (not secret) `SUPABASE_PUBLISHABLE_KEY` under *Settings → Secrets and variables → Actions → Variables*.
+
+The workflow refuses to publish a build that does not contain the Supabase URL, so the development role picker can never go live.
+
+### Manual alternative
 
 Build with `pnpm build:web` (output: `apps/mobile/dist`) and deploy the folder to **Cloudflare Pages**. `apps/mobile/public/_headers` sets the security headers (strict CSP, no third-party scripts, microphone/camera limited to the site itself). Set `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_KEY` as build environment variables. Configure the host to serve `index.html` for unknown paths (single-page app).
 

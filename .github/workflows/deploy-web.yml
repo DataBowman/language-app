@@ -1,0 +1,63 @@
+name: Deploy web app
+
+# Builds the Expo web app against the hosted Supabase project and publishes it to Cloudflare Pages.
+# Runs on every merge to main that changes the app or shared code, and on demand.
+on:
+  push:
+    branches: [main]
+    paths: ["apps/**", "packages/**", "pnpm-lock.yaml", ".github/workflows/deploy-web.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-web
+  cancel-in-progress: true
+
+env:
+  # Not secret: public identifiers (override with repository variables if they change).
+  CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID || '40d5acbd9d298cae04cbab8f98764a29' }}
+  PAGES_PROJECT: ${{ vars.PAGES_PROJECT || 'language-app' }}
+  # Inlined into the app at build time. The publishable key is designed to be public: every table is
+  # protected by Row Level Security. Never put the service-role key here.
+  EXPO_PUBLIC_SUPABASE_URL: https://${{ vars.SUPABASE_PROJECT_REF || 'zppkafqzmamwnqozrchz' }}.supabase.co
+  EXPO_PUBLIC_SUPABASE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: production
+    steps:
+      - name: Check configuration
+        run: |
+          if [ -z "$EXPO_PUBLIC_SUPABASE_KEY" ]; then
+            echo "::error::Add the repository variable SUPABASE_PUBLISHABLE_KEY (docs/OPERATIONS.md §5)."; exit 1
+          fi
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Add the CLOUDFLARE_API_TOKEN secret (docs/OPERATIONS.md §5)."; exit 1
+          fi
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+      - name: Build web app
+        # --clear: EXPO_PUBLIC_* values are inlined at build time; a cached build could miss them.
+        run: pnpm --filter mobile exec expo export --platform web --clear
+      - name: Refuse to publish a build without the backend
+        # The development role picker only appears when no backend is configured; it must never ship.
+        run: |
+          grep -rq "$EXPO_PUBLIC_SUPABASE_URL" apps/mobile/dist/_expo \
+            || { echo "::error::The build does not contain the Supabase URL"; exit 1; }
+      - name: Create the Pages project (first run only)
+        run: |
+          npx --yes wrangler@4 pages project list | grep -q "$PAGES_PROJECT" \
+            || npx --yes wrangler@4 pages project create "$PAGES_PROJECT" --production-branch main
+      - name: Publish
+        run: npx --yes wrangler@4 pages deploy apps/mobile/dist --project-name "$PAGES_PROJECT" --branch main --commit-dirty=true
