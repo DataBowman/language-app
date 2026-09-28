@@ -43,9 +43,9 @@ The project is **`zppkafqzmamwnqozrchz`** and the backup bucket is **`language-a
 | # | Where | What to create | GitHub secret name |
 |---|---|---|---|
 | 1 | supabase.com → your avatar → *Account → Access Tokens* | A personal access token (name it "github-actions"). If it has an expiry date, put a reminder in your calendar to replace it: when it expires, deploys and nightly backups stop | `SUPABASE_ACCESS_TOKEN_30` (the workflows also accept `SUPABASE_ACCESS_TOKEN`) |
-| 2 | Supabase project → *Project Settings → Database* | The database password (reset it if you don't have it; keep it in your password manager) | `SUPABASE_DB_PASSWORD` |
+| 2 | The password chosen when the project was created, or reset it on the database settings page: `https://supabase.com/dashboard/project/zppkafqzmamwnqozrchz/database/settings` | The database password (keep it in your password manager) | `SUPABASE_DB_PASSWORD` |
 | 3 | Supabase project → *Project Settings → API Keys* | The **service role** / secret key. It is powerful: it only ever goes into GitHub secrets, never into the app | `SUPABASE_SERVICE_ROLE_KEY` |
-| 4 | Cloudflare → *R2 → Manage API tokens → Create API token* | Permission *Object Read & Write*, limited to the bucket `language-app`. Copy the Access Key ID and Secret Access Key | `BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY` |
+| 4 | Cloudflare → *R2 object storage* → *Account Details* → **Manage** next to *API Tokens* → **Create Account API token** (or *User API token*) | Permission **Object Read & Write**, scoped to the bucket `language-app`. The next page shows the Access Key ID and the Secret Access Key **once**: copy both | `BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY` |
 | 5 | Your password manager | Generate a long random passphrase (30+ characters). **Keep it: without it the backups cannot be decrypted** | `BACKUP_PASSPHRASE` |
 
 Add them in GitHub: *repository → Settings → Secrets and variables → Actions → New repository secret*.
