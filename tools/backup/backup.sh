@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # Nightly off-site backup (ADR 0005): Supabase database dump + copy of new media → S3-compatible bucket (R2/B2).
 #
-# Required env:
-#   SUPABASE_DB_URL                  Postgres connection string of the hosted project (session pooler)
+# Required env — the database, either:
+#   SUPABASE_PROJECT_REF + SUPABASE_ACCESS_TOKEN + SUPABASE_DB_PASSWORD   (the CLI finds the pooler itself)
+#   or SUPABASE_DB_URL                                                    (a session-pooler connection string)
+# and the backup bucket:
 #   BACKUP_S3_ENDPOINT, BACKUP_S3_ACCESS_KEY_ID, BACKUP_S3_SECRET_ACCESS_KEY, BACKUP_S3_BUCKET
+#   BACKUP_S3_REGION (default "auto", which Cloudflare R2 expects)
 # Optional env:
 #   BACKUP_PASSPHRASE                Encrypt dumps with GPG (AES-256). Strongly recommended.
 #   SUPABASE_S3_ENDPOINT, SUPABASE_S3_ACCESS_KEY_ID, SUPABASE_S3_SECRET_ACCESS_KEY, SUPABASE_S3_REGION
@@ -13,12 +16,22 @@
 # Needs: supabase CLI (uses Docker for pg_dump), rclone, gzip, gpg.
 set -euo pipefail
 
-: "${SUPABASE_DB_URL:?}" "${BACKUP_S3_ENDPOINT:?}" "${BACKUP_S3_ACCESS_KEY_ID:?}" "${BACKUP_S3_SECRET_ACCESS_KEY:?}" "${BACKUP_S3_BUCKET:?}"
+: "${BACKUP_S3_ENDPOINT:?}" "${BACKUP_S3_ACCESS_KEY_ID:?}" "${BACKUP_S3_SECRET_ACCESS_KEY:?}" "${BACKUP_S3_BUCKET:?}"
 DAILY_RETENTION_DAYS="${DAILY_RETENTION_DAYS:-30}"
 MONTHLY_RETENTION_DAYS="${MONTHLY_RETENTION_DAYS:-400}"
 
+# Database source: an explicit connection string, or the linked project.
+if [ -n "${SUPABASE_DB_URL:-}" ]; then
+  DUMP_SOURCE=(--db-url "$SUPABASE_DB_URL")
+else
+  : "${SUPABASE_PROJECT_REF:?set SUPABASE_PROJECT_REF (or SUPABASE_DB_URL)}" "${SUPABASE_ACCESS_TOKEN:?}" "${SUPABASE_DB_PASSWORD:?}"
+  supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD" >/dev/null
+  DUMP_SOURCE=(--linked)
+fi
+
 # rclone remotes from env: "dest" = backup bucket, "supa" = Supabase Storage (optional).
 export RCLONE_CONFIG_DEST_TYPE=s3 RCLONE_CONFIG_DEST_PROVIDER=Other
+export RCLONE_CONFIG_DEST_REGION="${BACKUP_S3_REGION:-auto}"
 export RCLONE_CONFIG_DEST_ENDPOINT="$BACKUP_S3_ENDPOINT"
 export RCLONE_CONFIG_DEST_ACCESS_KEY_ID="$BACKUP_S3_ACCESS_KEY_ID"
 export RCLONE_CONFIG_DEST_SECRET_ACCESS_KEY="$BACKUP_S3_SECRET_ACCESS_KEY"
@@ -29,9 +42,9 @@ WORK="$(mktemp -d)"
 trap 'rm -rf "$WORK"' EXIT
 
 echo "▶ Dumping database"
-supabase db dump --db-url "$SUPABASE_DB_URL" --role-only -f "$WORK/roles.sql"
-supabase db dump --db-url "$SUPABASE_DB_URL" -f "$WORK/schema.sql"
-supabase db dump --db-url "$SUPABASE_DB_URL" --data-only --use-copy -f "$WORK/data.sql"
+supabase db dump "${DUMP_SOURCE[@]}" --role-only -f "$WORK/roles.sql"
+supabase db dump "${DUMP_SOURCE[@]}" -f "$WORK/schema.sql"
+supabase db dump "${DUMP_SOURCE[@]}" --data-only --use-copy -f "$WORK/data.sql"
 
 # Refuse to upload an obviously broken dump (e.g. empty after a connection problem).
 for f in roles schema data; do

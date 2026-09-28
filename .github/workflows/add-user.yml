@@ -1,0 +1,57 @@
+name: Add user
+
+# Creates an app account with a role (accounts are invite-only; the app never creates them).
+# Add the tutor first, then the student with the tutor's email to link them.
+on:
+  workflow_dispatch:
+    inputs:
+      email:
+        description: Email address of the person
+        required: true
+      role:
+        description: Role
+        type: choice
+        options: [student, tutor]
+        required: true
+      name:
+        description: Display name (optional)
+        required: false
+      tutor_email:
+        description: For a student, the tutor's email (links them; optional)
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  add-user:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: production
+    env:
+      SUPABASE_URL: https://${{ vars.SUPABASE_PROJECT_REF || 'zppkafqzmamwnqozrchz' }}.supabase.co
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      INPUT_EMAIL: ${{ inputs.email }}
+      INPUT_ROLE: ${{ inputs.role }}
+      INPUT_NAME: ${{ inputs.name }}
+      INPUT_TUTOR_EMAIL: ${{ inputs.tutor_email }}
+    steps:
+      - name: Mask personal data in logs
+        run: |
+          echo "::add-mask::$INPUT_EMAIL"
+          [ -n "$INPUT_TUTOR_EMAIL" ] && echo "::add-mask::$INPUT_TUTOR_EMAIL" || true
+          if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::Add the SUPABASE_SERVICE_ROLE_KEY secret (docs/OPERATIONS.md §2)."
+            exit 1
+          fi
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Inputs are passed through env vars, never interpolated into the script (prevents injection).
+      - name: Add user
+        run: |
+          node tools/admin/add-user.mjs --email "$INPUT_EMAIL" --role "$INPUT_ROLE" --name "$INPUT_NAME" --tutor-email "$INPUT_TUTOR_EMAIL"

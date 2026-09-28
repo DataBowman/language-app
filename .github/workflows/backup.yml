@@ -19,11 +19,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-      BACKUP_S3_ENDPOINT: ${{ secrets.BACKUP_S3_ENDPOINT }}
+      # Not secret: project and bucket identifiers (override with repository variables if they change).
+      SUPABASE_PROJECT_REF: ${{ vars.SUPABASE_PROJECT_REF || 'zppkafqzmamwnqozrchz' }}
+      BACKUP_S3_ENDPOINT: ${{ vars.BACKUP_S3_ENDPOINT || 'https://40d5acbd9d298cae04cbab8f98764a29.r2.cloudflarestorage.com' }}
+      BACKUP_S3_BUCKET: ${{ vars.BACKUP_S3_BUCKET || 'language-app' }}
+      # Secrets.
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
       BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
-      BACKUP_S3_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
       BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
       SUPABASE_S3_ENDPOINT: ${{ secrets.SUPABASE_S3_ENDPOINT }}
       SUPABASE_S3_REGION: ${{ secrets.SUPABASE_S3_REGION }}
@@ -33,7 +37,7 @@ jobs:
       - name: Check configuration
         id: cfg
         run: |
-          if [ -z "$SUPABASE_DB_URL" ] || [ -z "$BACKUP_S3_BUCKET" ]; then
+          if [ -z "$SUPABASE_DB_PASSWORD" ] || [ -z "$BACKUP_S3_ACCESS_KEY_ID" ]; then
             echo "::notice::Backup secrets not configured yet — skipping (see docs/OPERATIONS.md)."
             echo "configured=false" >> "$GITHUB_OUTPUT"
           else
