@@ -24,7 +24,7 @@ jobs:
       BACKUP_S3_ENDPOINT: ${{ vars.BACKUP_S3_ENDPOINT || 'https://40d5acbd9d298cae04cbab8f98764a29.r2.cloudflarestorage.com' }}
       BACKUP_S3_BUCKET: ${{ vars.BACKUP_S3_BUCKET || 'language-app' }}
       # Secrets.
-      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN_30 || secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       BACKUP_S3_ACCESS_KEY_ID: ${{ secrets.BACKUP_S3_ACCESS_KEY_ID }}
       BACKUP_S3_SECRET_ACCESS_KEY: ${{ secrets.BACKUP_S3_SECRET_ACCESS_KEY }}
