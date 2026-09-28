@@ -67,6 +67,26 @@ EXPO_PUBLIC_SUPABASE_KEY=<publishable / anon key from Project Settings → API K
 
 The publishable key is safe to ship in the app, because every table is protected by Row Level Security. Without this file the app runs in development mode (role picker, no data).
 
+### 2.4 Email sending (needed before real sign-in)
+
+Sign-in works by a 6-digit code sent by email. Supabase's built-in email sender is for testing only:
+- it only delivers to members of your Supabase organisation, so your tutor would get nothing;
+- it sends very few emails per hour;
+- on the free plan it does not allow custom email templates, and the default template contains a link instead of the code.
+
+So the project needs a **custom SMTP provider**. Free options that are enough for two people:
+
+| Provider | Free allowance | Notes |
+|---|---|---|
+| Brevo | ~300 emails/day | Can send from a verified single email address; no domain needed |
+| Resend | ~3,000 emails/month | Needs a domain you own |
+| Gmail | Personal volumes | Uses an *app password* (requires 2-step verification on the Google account) |
+
+Steps, once you've chosen a provider:
+1. Create the SMTP credentials at the provider.
+2. Enter them in Supabase: *Authentication → Emails → SMTP settings*. The labels may differ slightly.
+3. Re-enable the `[auth.email.template.magic_link]` block in `supabase/config.toml` (it contains the code template), merge, and the deploy applies it.
+
 ## 3. Adding or changing users later
 
 Use the **Add user** workflow again. Running it for an existing email updates their role and name, and can link a student to a tutor. Removing someone is deliberate and manual: they have learning history, which the database refuses to delete by accident (ADR 0009).
