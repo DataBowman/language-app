@@ -82,10 +82,22 @@ So the project needs a **custom SMTP provider**. Free options that are enough fo
 | Resend | ~3,000 emails/month | Needs a domain you own |
 | Gmail | Personal volumes | Uses an *app password* (requires 2-step verification on the Google account) |
 
-Steps, once you've chosen a provider:
-1. Create the SMTP credentials at the provider.
-2. Enter them in Supabase: *Authentication → Emails → SMTP settings*. The labels may differ slightly.
-3. Re-enable the `[auth.email.template.magic_link]` block in `supabase/config.toml` (it contains the code template), merge, and the deploy applies it.
+**We use Brevo.** The SMTP settings and the code template are in `supabase/config.toml`, and the Deploy database workflow applies them. You only create the credentials and add three GitHub secrets:
+
+1. Create a free account at brevo.com.
+2. **Verify a sender address**, i.e. the address the codes come from: *Senders, Domains & Dedicated IPs → Senders → Add a sender*, then confirm the email Brevo sends you.
+3. **Create an SMTP key**: *SMTP & API → SMTP tab → Generate a new SMTP key*. The page also shows your **SMTP login**, which looks like an email address at `smtp-brevo.com`, and the server `smtp-relay.brevo.com`, port `587`. Copy the key straight away, because it's shown only once.
+4. Add three GitHub secrets:
+
+   | Secret | Value |
+   |---|---|
+   | `BREVO_SMTP_LOGIN` | the SMTP login from step 3 |
+   | `BREVO_SMTP_KEY` | the SMTP key from step 3 |
+   | `SMTP_SENDER_EMAIL` | the verified sender address from step 2 |
+
+5. Run **Deploy database** (or merge any change under `supabase/`). It stops with a clear message if any of the three secrets is missing.
+
+Menu names in Brevo may differ slightly; the items to look for are *Senders* and *SMTP & API*.
 
 ## 3. Adding or changing users later
 
