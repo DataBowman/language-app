@@ -1,6 +1,6 @@
 # 0003: Offline-first, single-writer sync
 
-Date: 2026-09-27 · Status: Accepted
+Date: 2026-09-27 · Status: Accepted (amended, see README)
 
 ## Context
 Lessons are done on phones, sometimes with a poor connection. Recordings must never be lost if the network drops or the app crashes.

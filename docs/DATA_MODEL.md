@@ -1,5 +1,9 @@
 # Data model
 
+> **Status (2026-10-01).** Implemented in migrations: identity and links (0001), `learning_events` (0002–0003), engineering read access (0004), and **learner context and content** (0005: `learner_settings`, `goals`, `challenges`, `lessons`, `assignments`, `media`, `suggestions`). The curriculum graph is bundled content (`packages/core/content/es/objectives.json`), not a table. Still to come: plans, generation runs, lexicon, and review items (FSRS). Sections below that differ from the migrations are superseded by them.
+
+**Learning data** is recorded in the append-only `learning_events` ledger ([ADR 0009](adr/0009-learning-event-ledger.md), [LEARNING_DATA.md](LEARNING_DATA.md)). That table exists now (migration `20260928000000_learning_events.sql`). The `sessions`, `attempts` and `assessments` below are kept as the *shape of projections* (views or rebuildable tables) over that ledger, not separate sources of truth.
+
 This is a draft. It becomes `supabase/migrations/0001_init.sql` in Phase 0. All ids are UUIDs made by the client. All times are `timestamptz` in UTC.
 
 ## Tables
@@ -14,6 +18,9 @@ tutor_students      which tutor can see which student (supports more students la
 lessons             one row per lesson *version*; published versions are immutable
   id · version · status ('draft'|'published'|'archived')
   title · cefr_level ('A1'..'C2') · tags text[]
+  mode ('immersive'|'quick_pack')  ← quick_pack = a tutor-curated drill set; quick sessions
+                                     can also draw drills from immersive lessons
+  est_minutes int
   content jsonb            ← LessonContent (validated by packages/core)
   schema_version int       ← version of the LessonContent format itself
   generation jsonb null    ← {model, prompt_hash, created_at} when made by AI
@@ -24,16 +31,26 @@ assignments         tutor gives a lesson to a student
   id · lesson_id · lesson_version · student_id · assigned_by · due_at · created_at · updated_at · deleted_at
 
 media               metadata for each stored file (the bytes live in Storage)
-  id · owner_id · bucket · path · mime · bytes · duration_ms · sha256 · created_at
+  id · owner_id · bucket · path · mime · bytes · duration_ms · sha256
+  captured_on ('ios'|'android'|'web')  ← browsers record different formats (WebM/Opus vs MP4/AAC)
+  created_at
   UNIQUE (owner_id, sha256)      ← uploading the same file twice is harmless
 
-attempts            APPEND-ONLY: one row per exercise answer
-  id · student_id · assignment_id · lesson_id · lesson_version · exercise_id
+sessions            PROJECTION of session_* events — one row per study session
+  id · student_id · mode ('immersive'|'quick') · assignment_id null (immersive)
+  planned_seconds · started_at · ended_at null · platform ('ios'|'android'|'web')
+  composer_version text null        ← quick mode: which SessionComposer built it (reproducible)
+  created_at · updated_at
+
+attempts            PROJECTION of exercise_answered (+ hints, replays, latency) — one row per answer
+  id · student_id · session_id · assignment_id null · lesson_id · lesson_version · exercise_id
+  review_item_id null      ← quick-mode drills of an FSRS card
+  hints_used int default 0 ← immersive: how often the translation/hint was revealed
   response jsonb           ← {kind:'audio'|'video'|'photo'|'choice'|'text', media_id?, value?}
   auto_score numeric null  ← deterministic scoring on the device, if the exercise has one
   client_created_at · created_at (server)
 
-assessments         APPEND-ONLY: AI or tutor judgement of an attempt
+assessments         PROJECTION of assessment_recorded — AI or tutor judgement of an attempt
   id · attempt_id · source ('ai'|'tutor') · transcript text null
   score numeric null · feedback jsonb · model text null · created_by · created_at
 
@@ -44,13 +61,23 @@ audit_log           filled by triggers on lessons/assignments/profiles
   id · table_name · row_id · action · old jsonb · new jsonb · actor · at
 ```
 
-Progress is **views** (for example `v_student_skill_progress` and `v_weekly_activity`) calculated from `attempts` and `assessments`. There is no stored "progress" counter that could drift or become corrupted.
+Progress is **views** (for example `v_student_skill_progress`, `v_weekly_activity`, `v_immersive_quality`, `v_quick_retention`), all split by `sessions.mode`, calculated from `attempts` and `assessments`. There is no stored "progress" counter that could drift or become corrupted.
+
+challenges          tutor-approved scenario definitions (ADR 0012), versioned like lessons
+  id · version · status ('draft'|'published'|'archived') · content jsonb (Challenge, packages/core)
+  created_by · created_at · updated_at · deleted_at            PK (id, version)
+
+suggestions         mutable workflow state (not facts): suggested session plans and AI-proposed
+                    observations waiting for the tutor (ADR 0011)
+  id · learner_id · kind ('session_plan'|'observation_proposal'|'challenge_draft')
+  content jsonb · status ('pending'|'accepted'|'rejected'|'expired') · created_at · decided_at
 
 ## LessonContent (JSON, validated with zod in `packages/core`)
 
 ```jsonc
 {
   "schemaVersion": 1,
+  "mode": "immersive",
   "objectives": ["Talk about your morning routine using reflexive verbs"],
   "vocabulary": [{ "es": "despertarse", "en": "to wake up", "mediaId": null }],
   "exercises": [
@@ -61,6 +88,24 @@ Progress is **views** (for example `v_student_skill_progress` and `v_weekly_acti
   ]
 }
 ```
+
+### Exercise types and modes
+
+Each type is declared once in `packages/core` with metadata that the player, the `SessionComposer` and the lesson generator all read:
+
+| Type | Immersive | Quick | Auto-scored | Needs AI/tutor | Web note |
+|---|:-:|:-:|:-:|:-:|---|
+| `flashcard` (es↔en / picture↔word) | – | ✔ | ✔ (self-graded: again/hard/good/easy) | – | |
+| `multiple_choice` | ✔ | ✔ | ✔ | – | |
+| `listen_choose` (audio → pick the meaning) | ✔ | ✔ | ✔ | – | TTS may use server audio |
+| `word_order` | ✔ | ✔ | ✔ | – | |
+| `type_answer` | ✔ | ✔ | ✔ (normalised match) | – | keyboard-friendly on the web |
+| `listen_repeat` | ✔ | – (needs speech-to-text) | partly (transcript match) | STT | server STT on the web |
+| `describe_image` | ✔ | – | – | AI + tutor | |
+| `video_response` | ✔ | – | – | AI + tutor | MediaRecorder |
+| `conversation` (turn-based role-play) | ✔ | – | – | AI (LLM + STT) | |
+
+Rule: **quick sessions may only use auto-scored types**, so they work offline with no AI cost.
 
 Exercise types are a closed, versioned list. The lesson player renders only the types it knows. A new type means a `schemaVersion` bump plus a migration function in `packages/core`. Old lessons stay readable forever.
 
@@ -74,9 +119,15 @@ Deny by default. Every table has RLS enabled.
 | lessons | read `published` versions assigned to them | full access to their own lessons |
 | assignments | read own | create/update for their students |
 | media | insert/read own | read their students' media; insert own (lesson media) |
+| sessions | insert/update own (only `ended_at`) | read their students' sessions |
 | attempts | **insert** + read own; no update/delete | read their students' attempts |
 | assessments | read those on own attempts | insert `source='tutor'` for their students; read |
 | review_items | read/write own | read their students' items |
 | audit_log | none | read |
+| learning_events | **insert own facts only; no read** (curated progress instead, ADR 0010) | read their students' + own; insert sessions/observations/tutor assessments for their students |
+| challenges | read published | full access to their own |
+| suggestions | none | full access for their students |
+
+The read-only **`analytics_reader`** role (engineering, ADR 0013) can SELECT every table and nothing else. Every table with RLS must include an `analytics_reader` read policy; a test enforces it.
 
 `source='ai'` assessments are written only by edge functions using the service role, never directly by clients.

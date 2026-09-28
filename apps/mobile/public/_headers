@@ -1,0 +1,8 @@
+# Security headers for Cloudflare Pages (ADR 0006). No third-party scripts are allowed.
+# connect-src must list the Supabase project; *.supabase.co covers the hosted project.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://*.supabase.co; media-src 'self' blob: https://*.supabase.co; connect-src 'self' https://*.supabase.co wss://*.supabase.co; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: microphone=(self), camera=(self), geolocation=()
+  X-Frame-Options: DENY

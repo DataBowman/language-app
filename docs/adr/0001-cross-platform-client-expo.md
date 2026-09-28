@@ -1,6 +1,6 @@
 # 0001: Expo / React Native for the client
 
-Date: 2026-09-27 · Status: Accepted
+Date: 2026-09-27 · Status: Accepted (amended, see README)
 
 ## Context
 The app must run on iOS and Android. One developer maintains it, so it should be one codebase, open source, and cheap to build. It depends heavily on the microphone, camera and video, and the tutor would benefit from a desktop/web view.
