@@ -12,7 +12,7 @@ This is meant to be a long-running project. It uses open-source parts and costs 
 
 ## Status
 
-Phase 0b foundation is in place: monorepo, domain package with tests, app shell for iOS/Android/web, the first database migration with access-rule tests, CI and backup workflows. Content features wait for the decisions in [CONTENT_FRAMEWORK.md §10](docs/CONTENT_FRAMEWORK.md).
+Foundation (Phase 0) is in place and Phase 1 has started: monorepo, domain package with tests, app shell for iOS/Android/web, database migrations with access-rule tests (identity, learning event ledger, learner context and content tables), CI and backup workflows. Learner context (variety, level, goals, time) is runtime data ([ADR 0014](docs/adr/0014-learner-context-is-data.md)).
 
 ## Quick start
 
@@ -41,7 +41,7 @@ Setting up Supabase, inviting users, backups and hosting: [docs/OPERATIONS.md](d
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The overall design: components, what runs on the device and what runs on the server, data flow, security, backups |
 | [docs/CONTENT_FRAMEWORK.md](docs/CONTENT_FRAMEWORK.md) | **What good AI-generated content needs**: goals, learner model, curriculum graph, adaptive planning, quality checks, translation. Decide this before the schema |
 | [docs/LEARNING_DATA.md](docs/LEARNING_DATA.md) | What learning data is recorded (events), and which future features it will power |
-| [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Tables, lesson content format, access rules (provisional) |
+| [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Tables, lesson content format, access rules |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Build phases, from the foundation to the full feature set |
 | [docs/COSTS.md](docs/COSTS.md) | What each piece costs and how to keep it near zero |
 | [docs/OPERATIONS.md](docs/OPERATIONS.md) | Running locally, Supabase setup, invitations, backups, hosting |
