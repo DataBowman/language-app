@@ -39,17 +39,24 @@ mkdir -p "$PROJ"
 (cd "$PROJ" && supabase init >/dev/null)
 supabase db start --workdir "$PROJ"
 DB_URL="postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+# The throwaway database's superuser. Supabase-managed internal tables (e.g. storage.buckets_vectors)
+# refuse writes from "postgres", so the test restore runs as the superuser; our own data is what we verify.
+ADMIN_URL="postgresql://supabase_admin:postgres@127.0.0.1:54322/postgres"
 
 echo "▶ Restoring"
-psql "$DB_URL" -q -v ON_ERROR_STOP=0 -f "$WORK/roles.sql" >/dev/null   # existing roles may already exist
-psql "$DB_URL" -q -v ON_ERROR_STOP=1 --single-transaction \
+psql "$ADMIN_URL" -q -v ON_ERROR_STOP=0 -f "$WORK/roles.sql" >/dev/null   # existing roles may already exist
+psql "$ADMIN_URL" -q -v ON_ERROR_STOP=1 --single-transaction \
   -c 'SET session_replication_role = replica' -f "$WORK/schema.sql" -f "$WORK/data.sql" >/dev/null
 
 echo "▶ Sanity checks"
 psql "$DB_URL" -v ON_ERROR_STOP=1 -At <<'SQL'
 do $$
 begin
-  if (select count(*) from public.profiles) = 0 then raise exception 'no profiles restored'; end if;
+  -- Our schema came back (an empty database with no users yet is still a valid backup).
+  if to_regclass('public.profiles') is null or to_regclass('public.learning_events') is null
+     or to_regclass('public.lessons') is null then
+    raise exception 'core tables missing after restore';
+  end if;
   if (select count(*) from auth.users) <> (select count(*) from public.profiles) then
     raise exception 'auth.users and profiles counts differ';
   end if;
@@ -58,7 +65,9 @@ begin
     raise exception 'a restored public table has RLS disabled';
   end if;
 end $$;
+select 'users: ' || count(*) from auth.users;
 select 'profiles: ' || count(*) from public.profiles;
+select 'learning_events: ' || count(*) from public.learning_events;
 select 'audit_log: ' || count(*) || ', latest ' || coalesce(max(at)::text, 'none') from public.audit_log;
 SQL
 echo "✔ Restore test of $LATEST passed"
