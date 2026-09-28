@@ -155,7 +155,7 @@ Checks Q1–Q7, Q9 and Q10 are **code** in `packages/core`, so they behave the s
 |---|---|---|---|
 | **Micro** | During a session | Code (on the device) | Repeat missed items at the end; offer hints; shorten a quick session if accuracy collapses |
 | **Meso** | Next lesson | AI proposes, tutor approves | Which objectives the next lesson targets; difficulty; the error patterns to target |
-| **Macro** | Weekly, or when triggered | AI proposes a **plan revision**, tutor approves | Order, pruning or adding objectives; quick/immersive mix; pace; goal feasibility |
+| **Macro** | Weekly, or when triggered | AI makes a **plan revision** that applies automatically (tutor notified, can revert; `plan_autonomy` can require approval instead) | Order, pruning or adding objectives; quick/immersive mix; pace; goal feasibility |
 
 ### Macro re-planning triggers
 
@@ -214,15 +214,14 @@ There are three separate concerns. Keep them separate.
 
 The content language is always the goal's Spanish variety. Translation *direction* is Spanish → English (glosses), never English content translated into Spanish, which tends to produce unnatural Spanish.
 
-## 10. Open questions: these decide the final schema
+## 10. Learner context: resolved ([ADR 0014](adr/0014-learner-context-is-data.md))
 
-1. **Goal**: What is the first goal, target levels per skill, and is there a deadline?
-2. **Variety**: Which Spanish (Spain, Mexico, other Latin American, neutral)?
-3. **Starting point**: Current level? (A placement conversation with the tutor + a short adaptive test could seed the learner model.)
-4. **Reference curriculum**: OK to base the graph on CEFR + PCIC, or does the tutor have a curriculum/textbook to follow?
-5. **AI autonomy**: Must the tutor approve *every* plan revision, or may small ones (reordering within a week) apply automatically?
-6. **Time budget**: Typical minutes per day / sessions per week, and the preferred quick vs immersive split?
-7. **Exam**: Is an exam (e.g. DELE, SIELE) a goal? That adds format-specific objectives.
+The earlier open questions have one answer: **treat all of them as unknown at all times.**
+- Variety, weekly time and quick/immersive share are *settings* (NULL = unknown, neutral defaults used and flagged as assumed).
+- Level is *estimated* continuously from evidence (`estimateLevels`).
+- Goals are *selectable* (challenge, level or custom, with an optional date).
+- The curriculum is bundled, versioned content (CEFR + PCIC based; a tutor's own material can be added later).
+- Plan revisions apply **automatically** by default (`plan_autonomy = 'auto'`), are versioned, and can be reverted.
 
 ## 11. Tunable parameters (defaults, versioned with the framework)
 

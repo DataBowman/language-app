@@ -7,8 +7,18 @@ export const FRAMEWORK_VERSION = '0.1.0';
 export const CEFR_LEVELS = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const;
 export type CefrLevel = (typeof CEFR_LEVELS)[number];
 
-/** Spanish varieties (BCP 47). All content in a lesson must use one. */
-export const VARIETIES = ['es-ES', 'es-MX', 'es-AR', 'es-419'] as const;
+/**
+ * Languages the app can teach. Only Spanish has a language pack today (variety markers, error tags,
+ * curriculum); adding one means adding its pack, not changing the app.
+ */
+export const TARGET_LANGUAGES = ['es'] as const;
+export type TargetLanguage = (typeof TARGET_LANGUAGES)[number];
+
+/**
+ * Spanish varieties (BCP 47). All content in a lesson must use one. 'es' = neutral: used while the
+ * learner has not chosen a variety, and avoids region-specific forms (vosotros, voseo, …).
+ */
+export const VARIETIES = ['es', 'es-ES', 'es-MX', 'es-AR', 'es-419'] as const;
 export type Variety = (typeof VARIETIES)[number];
 
 export const SKILLS = ['listening', 'speaking', 'reading', 'writing'] as const;

@@ -3,10 +3,10 @@
 Each phase ends with something usable. Security and backups come **first**, before there is any data to lose. The browser is supported from Phase 0; it is not added later ([ADR 0006](adr/0006-browser-as-first-class-platform.md)).
 
 ## Phase 0a: Content framework decisions (before the schema is final)
-- [ ] Answer the open questions in [CONTENT_FRAMEWORK.md §10](CONTENT_FRAMEWORK.md) (goal, deadline, Spanish variety, starting level, reference curriculum, AI autonomy)
-- [ ] Seed curriculum graph for A1–A2 (objectives + prerequisites from CEFR + PCIC), AI-drafted, tutor-reviewed, stored in `supabase/seed/`
+- [x] Open questions resolved: all learner context is runtime data, and plan changes apply automatically ([ADR 0014](adr/0014-learner-context-is-data.md))
+- [x] Starter A1–A2 curriculum graph (29 objectives, CEFR + PCIC, variety-neutral) bundled in `packages/core/content/es/`; *tutor review pending*
 - [ ] Define the learner snapshot and the MCP tool/resource list ([ADR 0008](adr/0008-mcp-provider-agnostic-ai.md)); accept ADR 0008
-- [ ] Finalise [DATA_MODEL.md](DATA_MODEL.md) (goals, objectives, plans, mastery, generation_runs, lexicon) and `LessonContent` v1
+- [x] Content and context tables (migration 0005) + `LessonContent` v1; plans, generation runs and lexicon follow with Phases 3–4
 
 ## Phase 0b: Foundation
 - [x] pnpm monorepo: `apps/mobile` (Expo SDK 57 + expo-router + TypeScript strict, **iOS/Android/web**), `packages/core`
@@ -32,7 +32,9 @@ Each phase ends with something usable. Security and backups come **first**, befo
 - [ ] Tutor: review queue, where they listen to recordings and leave text/voice feedback
 - [ ] Tutor: **suggested session plan** and **pre-filled session log** (confirm, untick, one-tap levels, free/voice note)
 - [ ] Student: **curated progress** screen (server function running `buildStudentProgress`), challenges list with readiness, "I did it!" completion with reflection
-- [ ] Tables `challenges` (+ the two templates, tutor-reviewed) and `suggestions`
+- [x] Tables `learner_settings`, `goals`, `lessons` (versioned, published = frozen), `assignments`, `challenges`, `media`, `suggestions` with RLS + tests
+- [ ] Load the two challenge templates (tutor-reviewed) as published challenges
+- [ ] Settings screen: choose variety, weekly time, goal (all optional)
 - **Outcome:** real deep lessons between the student and tutor, on phone or browser
 
 ## Phase 2: Quick mode + spaced repetition (still no AI; cheap)

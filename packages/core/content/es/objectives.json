@@ -1,0 +1,598 @@
+{
+  "language": "es",
+  "version": 1,
+  "note": "Starter A1–A2 curriculum, variety-neutral. Based on CEFR descriptors and the Instituto Cervantes PCIC inventories; to be reviewed by the tutor and extended.",
+  "objectives": [
+    {
+      "id": "pr.vowels",
+      "type": "pronunciation",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Spanish vowels",
+      "description": "The five pure vowels /a e i o u/, short and never reduced.",
+      "prerequisites": [],
+      "estHours": 1,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "pr.stress_accents",
+      "type": "pronunciation",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "reading",
+        "writing"
+      ],
+      "title": "Word stress and written accents",
+      "description": "Default stress rules and how the written accent marks exceptions (está, café, teléfono).",
+      "prerequisites": [
+        "pr.vowels"
+      ],
+      "estHours": 1.5,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "pr.rr_trill",
+      "type": "pronunciation",
+      "cefr": "A2",
+      "skills": [
+        "speaking"
+      ],
+      "title": "Tapped r and trilled rr",
+      "description": "Contrast pero/perro; initial r is trilled.",
+      "prerequisites": [
+        "pr.vowels"
+      ],
+      "estHours": 2,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "gr.articles_gender",
+      "type": "grammar",
+      "cefr": "A1",
+      "skills": [
+        "reading",
+        "writing",
+        "speaking"
+      ],
+      "title": "Articles and noun gender",
+      "description": "el/la/los/las, un/una; common gender patterns (-o/-a) and exceptions (el día, la mano).",
+      "prerequisites": [],
+      "estHours": 2,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "gr.adjective_agreement",
+      "type": "grammar",
+      "cefr": "A1",
+      "skills": [
+        "writing",
+        "speaking"
+      ],
+      "title": "Adjective agreement",
+      "description": "Adjectives agree in gender and number and usually follow the noun.",
+      "prerequisites": [
+        "gr.articles_gender"
+      ],
+      "estHours": 2,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "gr.present_regular",
+      "type": "grammar",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "writing",
+        "reading",
+        "listening"
+      ],
+      "title": "Present tense: regular verbs",
+      "description": "-ar/-er/-ir endings for all persons; subject pronouns are usually dropped.",
+      "prerequisites": [],
+      "estHours": 3,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "gr.ser_estar_basic",
+      "type": "grammar",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "writing"
+      ],
+      "title": "ser vs estar (basics)",
+      "description": "ser for identity, origin, profession; estar for location and temporary states (¿Cómo estás?).",
+      "prerequisites": [
+        "gr.present_regular"
+      ],
+      "estHours": 3,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "gr.reflexive_present",
+      "type": "grammar",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "writing"
+      ],
+      "title": "Reflexive verbs in the present",
+      "description": "me levanto, te llamas, se llama: pronoun before the conjugated verb.",
+      "prerequisites": [
+        "gr.present_regular"
+      ],
+      "estHours": 2,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "gr.questions",
+      "type": "grammar",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "listening",
+        "writing"
+      ],
+      "title": "Asking questions",
+      "description": "Question words (qué, dónde, cuándo, cuánto, cómo) and ¿…? punctuation; intonation for yes/no questions.",
+      "prerequisites": [
+        "gr.present_regular"
+      ],
+      "estHours": 2,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "gr.gustar",
+      "type": "grammar",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "writing"
+      ],
+      "title": "gustar and similar verbs",
+      "description": "me gusta / me gustan; agreement with the thing liked.",
+      "prerequisites": [
+        "gr.present_regular"
+      ],
+      "estHours": 2,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "gr.present_irregular",
+      "type": "grammar",
+      "cefr": "A2",
+      "skills": [
+        "speaking",
+        "writing",
+        "reading",
+        "listening"
+      ],
+      "title": "Present tense: common irregular verbs",
+      "description": "tener, ir, hacer, querer, poder, stem changes (e→ie, o→ue).",
+      "prerequisites": [
+        "gr.present_regular"
+      ],
+      "estHours": 4,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "gr.ir_a_future",
+      "type": "grammar",
+      "cefr": "A2",
+      "skills": [
+        "speaking",
+        "writing"
+      ],
+      "title": "Near future: ir a + infinitive",
+      "description": "Talking about plans: Voy a visitar…",
+      "prerequisites": [
+        "gr.present_irregular"
+      ],
+      "estHours": 1.5,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "gr.preterite_regular",
+      "type": "grammar",
+      "cefr": "A2",
+      "skills": [
+        "speaking",
+        "writing",
+        "reading",
+        "listening"
+      ],
+      "title": "Preterite: regular verbs",
+      "description": "Completed past actions: hablé, comí, viví.",
+      "prerequisites": [
+        "gr.present_irregular"
+      ],
+      "estHours": 4,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "fn.greetings",
+      "type": "function",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Greetings",
+      "description": "hola, buenos días/tardes/noches; greeting by time of day.",
+      "prerequisites": [],
+      "estHours": 1,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "fn.farewells",
+      "type": "function",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Saying goodbye",
+      "description": "adiós, hasta luego, hasta mañana, que tengas un buen día.",
+      "prerequisites": [
+        "fn.greetings"
+      ],
+      "estHours": 1,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "fn.register_tu_usted",
+      "type": "function",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "tú or usted",
+      "description": "Choosing informal vs formal address; verb forms that go with each.",
+      "prerequisites": [
+        "gr.present_regular"
+      ],
+      "estHours": 1.5,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "fn.polite_requests",
+      "type": "function",
+      "cefr": "A1",
+      "skills": [
+        "speaking"
+      ],
+      "title": "Polite requests",
+      "description": "por favor, quisiera…, ¿me puede…?, ¿podría…?",
+      "prerequisites": [
+        "fn.register_tu_usted"
+      ],
+      "estHours": 1.5,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "fn.numbers_prices",
+      "type": "function",
+      "cefr": "A1",
+      "skills": [
+        "listening",
+        "speaking"
+      ],
+      "title": "Numbers, prices and times",
+      "description": "Numbers 0–1000, asking and understanding prices and times.",
+      "prerequisites": [],
+      "estHours": 2.5,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "fn.spell_name_dates",
+      "type": "function",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Spelling names and saying dates",
+      "description": "The alphabet, spelling your name, days, months and dates.",
+      "prerequisites": [
+        "fn.numbers_prices"
+      ],
+      "estHours": 1.5,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "vo.food_basic",
+      "type": "vocab_set",
+      "cefr": "A1",
+      "skills": [
+        "reading",
+        "listening",
+        "speaking"
+      ],
+      "title": "Food and drink (basic)",
+      "description": "About 40 common food, drink and restaurant words.",
+      "prerequisites": [],
+      "estHours": 2,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "vo.transport_basic",
+      "type": "vocab_set",
+      "cefr": "A1",
+      "skills": [
+        "reading",
+        "listening",
+        "speaking"
+      ],
+      "title": "Transport (basic)",
+      "description": "Bus, train, taxi, ticket, station, airport and related verbs.",
+      "prerequisites": [],
+      "estHours": 1.5,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "vo.places_city",
+      "type": "vocab_set",
+      "cefr": "A1",
+      "skills": [
+        "reading",
+        "listening",
+        "speaking"
+      ],
+      "title": "Places in a city",
+      "description": "Street, square, museum, bank, pharmacy; left/right/straight on.",
+      "prerequisites": [],
+      "estHours": 1.5,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": false
+      }
+    },
+    {
+      "id": "cd.introduce_self",
+      "type": "can_do",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Introduce yourself",
+      "description": "Can say their name, where they are from and what they do, and ask the same.",
+      "prerequisites": [
+        "fn.greetings",
+        "gr.ser_estar_basic",
+        "gr.reflexive_present"
+      ],
+      "estHours": 2,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "cd.small_talk_basic",
+      "type": "can_do",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Basic small talk",
+      "description": "Can ask how someone is, answer, and exchange a few friendly words about the day or weekend.",
+      "prerequisites": [
+        "fn.greetings",
+        "gr.ser_estar_basic",
+        "gr.questions",
+        "fn.register_tu_usted"
+      ],
+      "estHours": 3,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "cd.order_food",
+      "type": "can_do",
+      "cefr": "A1",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Order food and drink",
+      "description": "Can order in a café or restaurant, ask what a dish contains, and ask for the bill.",
+      "prerequisites": [
+        "vo.food_basic",
+        "fn.polite_requests",
+        "fn.numbers_prices",
+        "gr.gustar"
+      ],
+      "estHours": 3,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "cd.buy_ticket",
+      "type": "can_do",
+      "cefr": "A2",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Buy a ticket",
+      "description": "Can buy a transport ticket and ask about times and platforms.",
+      "prerequisites": [
+        "vo.transport_basic",
+        "fn.numbers_prices",
+        "fn.polite_requests",
+        "gr.questions"
+      ],
+      "estHours": 2,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "cd.hotel_checkin",
+      "type": "can_do",
+      "cefr": "A2",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Check in at a hotel",
+      "description": "Can check in, give their name and dates, and ask about breakfast or wifi.",
+      "prerequisites": [
+        "fn.spell_name_dates",
+        "fn.polite_requests",
+        "gr.present_irregular"
+      ],
+      "estHours": 2,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "cd.ask_directions",
+      "type": "can_do",
+      "cefr": "A2",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Ask for and follow directions",
+      "description": "Can ask how to get somewhere and understand simple directions.",
+      "prerequisites": [
+        "vo.places_city",
+        "gr.questions",
+        "gr.present_irregular"
+      ],
+      "estHours": 2.5,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    },
+    {
+      "id": "cd.explain_problem_simple",
+      "type": "can_do",
+      "cefr": "A2",
+      "skills": [
+        "speaking",
+        "listening"
+      ],
+      "title": "Explain a simple problem",
+      "description": "Can say that something does not work or is missing and ask for help.",
+      "prerequisites": [
+        "fn.polite_requests",
+        "gr.present_irregular",
+        "gr.ser_estar_basic"
+      ],
+      "estHours": 3,
+      "mastery": {
+        "threshold": 0.8,
+        "distinctDays": 3,
+        "requiresProduction": true
+      }
+    }
+  ]
+}

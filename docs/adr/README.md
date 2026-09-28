@@ -17,3 +17,4 @@ Short, dated records of the important decisions. Do not rewrite an accepted ADR.
 | [0011](0011-tutored-sessions.md) | Tutored sessions: suggested plan, confirm-don't-type logging | Accepted |
 | [0012](0012-scenario-challenges.md) | Scenario challenges: real-world goals the curriculum works towards | Accepted |
 | [0013](0013-engineer-raw-data-access.md) | Read-only raw-data access for the engineer | Accepted |
+| [0014](0014-learner-context-is-data.md) | Learner context is data, never an assumption; plan changes apply automatically | Accepted |

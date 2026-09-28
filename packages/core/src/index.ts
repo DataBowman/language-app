@@ -12,3 +12,5 @@ export * from './evidence';
 export * from './challenges';
 export * from './suggestions';
 export * from './progress';
+export * from './learner';
+export * from './curriculum-data';

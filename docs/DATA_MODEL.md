@@ -1,6 +1,6 @@
 # Data model
 
-> **Provisional.** The entities the AI needs (goals, curriculum graph, plans, mastery, provenance, lexicon) are defined by [CONTENT_FRAMEWORK.md §8](CONTENT_FRAMEWORK.md). This schema will be finalised after that framework's open questions (§10) are answered.
+> **Status (2026-10-01).** Implemented in migrations: identity and links (0001), `learning_events` (0002–0003), engineering read access (0004), and **learner context and content** (0005: `learner_settings`, `goals`, `challenges`, `lessons`, `assignments`, `media`, `suggestions`). The curriculum graph is bundled content (`packages/core/content/es/objectives.json`), not a table. Still to come: plans, generation runs, lexicon, and review items (FSRS). Sections below that differ from the migrations are superseded by them.
 
 **Learning data** is recorded in the append-only `learning_events` ledger ([ADR 0009](adr/0009-learning-event-ledger.md), [LEARNING_DATA.md](LEARNING_DATA.md)). That table exists now (migration `20260928000000_learning_events.sql`). The `sessions`, `attempts` and `assessments` below are kept as the *shape of projections* (views or rebuildable tables) over that ledger, not separate sources of truth.
 

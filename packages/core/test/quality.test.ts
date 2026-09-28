@@ -141,3 +141,13 @@ describe('misconception tags on options', () => {
     expect(checkLesson(l).results.find((c) => c.id === 'Q6')!.failures.join()).toMatch(/1 entries for 2 options/);
   });
 });
+
+describe('neutral variety', () => {
+  it('Q7: a neutral lesson avoids both vosotros and voseo', () => {
+    const l = validLesson();
+    l.variety = 'es';
+    expect(checkLesson(l).ok).toBe(true);
+    l.exercises[1]!.prompt.text = 'Vos y vosotros.';
+    expect(checkLesson(l).results.find((c) => c.id === 'Q7')!.failures).toHaveLength(2);
+  });
+});
