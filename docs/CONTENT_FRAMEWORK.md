@@ -55,7 +55,7 @@ Rough external anchors, used only until this learner's own pace is known: guided
 
 ## 3. Learner model
 
-These are all **computed from evidence** (the attempt log). They are never typed in by hand, except the preferences.
+These are all **computed from evidence**: the append-only learning event ledger ([LEARNING_DATA.md](LEARNING_DATA.md)). They are never typed in by hand, except the preferences.
 
 | Signal | Source | Used for |
 |---|---|---|

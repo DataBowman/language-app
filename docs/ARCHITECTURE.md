@@ -230,7 +230,7 @@ The tutor can use it on a phone or in a browser. A laptop screen is usually more
 
 Design rules, from most to least important:
 
-1. **Append-only facts.** `attempts`, `assessments`, `feedback` and `media` are never updated in place. A correction is a new row. Progress is *calculated* from these rows, so a bug in the progress logic can be fixed and everything recalculated without any data loss.
+1. **Append-only facts.** The `learning_events` ledger ([ADR 0009](adr/0009-learning-event-ledger.md)) and `media` are never updated in place; a database trigger blocks it even for admins. A correction is a new row. Progress is *calculated* from these rows, so a bug in the progress logic can be fixed and everything recalculated without any data loss.
 2. **Immutable published lessons.** Editing a published lesson creates `version + 1`. Attempts point at `(lesson_id, version)`, so past results stay meaningful.
 3. **Soft delete only** (`deleted_at`), plus an `audit_log` table filled by triggers for the tutor-editable tables.
 4. **Idempotent writes everywhere** (client UUIDs, content hashes), so retries are always safe.

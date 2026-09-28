@@ -12,3 +12,4 @@ Short, dated records of the important decisions. Do not rewrite an accepted ADR.
 | [0006](0006-browser-as-first-class-platform.md) | The browser is a first-class platform | Accepted |
 | [0007](0007-two-learning-modes.md) | Two learning modes (immersive and quick) in one app | Accepted |
 | [0008](0008-mcp-provider-agnostic-ai.md) | MCP server as the provider-independent interface between data and any AI | Proposed |
+| [0009](0009-learning-event-ledger.md) | Learning event ledger: record raw facts now, derive features later | Accepted |

@@ -166,6 +166,11 @@ function checkAnswerKeys(lesson: LessonContent): CheckResult {
       if (e.correct >= e.options.length) failures.push(`${e.id}: correct index ${e.correct} is out of range`);
       const norm = e.options.map(normalizeAnswer);
       if (new Set(norm).size !== norm.length) failures.push(`${e.id}: options are not distinct`);
+      if (e.optionErrors) {
+        if (e.optionErrors.length !== e.options.length)
+          failures.push(`${e.id}: optionErrors has ${e.optionErrors.length} entries for ${e.options.length} options`);
+        else if (e.optionErrors[e.correct] != null) failures.push(`${e.id}: the correct option must not carry an error tag`);
+      }
     }
     if (e.type === 'type_answer') {
       const norm = e.accepted.map(normalizeAnswer);

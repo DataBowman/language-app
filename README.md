@@ -28,7 +28,7 @@ Setting up Supabase, inviting users, backups and hosting: [docs/OPERATIONS.md](d
 | Path | What |
 |---|---|
 | `apps/mobile` | Expo app (iOS, Android, web) for both student and tutor |
-| `packages/core` | Pure TypeScript domain logic: lesson schema, exercise types, curriculum graph, feasibility, quality checks |
+| `packages/core` | Pure TypeScript domain logic: lesson schema, exercise types, curriculum graph, feasibility, quality checks, learning events + evidence |
 | `supabase/` | Config, SQL migrations, RLS tests |
 | `tools/backup` | Backup and restore-test scripts used by the scheduled workflows |
 | `docs/` | Design documents and decision records |
@@ -39,6 +39,7 @@ Setting up Supabase, inviting users, backups and hosting: [docs/OPERATIONS.md](d
 |---|---|
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The overall design: components, what runs on the device and what runs on the server, data flow, security, backups |
 | [docs/CONTENT_FRAMEWORK.md](docs/CONTENT_FRAMEWORK.md) | **What good AI-generated content needs**: goals, learner model, curriculum graph, adaptive planning, quality checks, translation. Decide this before the schema |
+| [docs/LEARNING_DATA.md](docs/LEARNING_DATA.md) | What learning data is recorded (events), and which future features it will power |
 | [docs/DATA_MODEL.md](docs/DATA_MODEL.md) | Tables, lesson content format, access rules (provisional) |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Build phases, from the foundation to the full feature set |
 | [docs/COSTS.md](docs/COSTS.md) | What each piece costs and how to keep it near zero |

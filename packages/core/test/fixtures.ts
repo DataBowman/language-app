@@ -1,9 +1,9 @@
-import type { LessonContent, Objective } from '../src';
+import type { LessonContentInput, Objective } from '../src';
 
 export const MEDIA = '3f1c2b1e-8a4d-4c7e-9f00-1234567890ab';
 
 /** A small immersive lesson that passes every check. Tests mutate copies of it. */
-export function validLesson(): LessonContent {
+export function validLesson(): LessonContentInput {
   return {
     schemaVersion: 1,
     mode: 'immersive',

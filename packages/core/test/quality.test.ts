@@ -127,3 +127,17 @@ describe('lessonJsonSchema', () => {
     expect(JSON.stringify(schema)).toContain('Curriculum objectives this exercise practises');
   });
 });
+
+describe('misconception tags on options', () => {
+  it('Q6: optionErrors must align with options and leave the correct option untagged', () => {
+    const l = validLesson();
+    const mc = l.exercises[0]!;
+    if (mc.type !== 'multiple_choice') throw new Error('fixture changed');
+    mc.optionErrors = [null, 'err.vocab_confusion'];
+    expect(checkLesson(l).ok).toBe(true);
+    mc.optionErrors = ['err.vocab_confusion', null];
+    expect(checkLesson(l).results.find((c) => c.id === 'Q6')!.failures.join()).toMatch(/correct option/);
+    mc.optionErrors = [null];
+    expect(checkLesson(l).results.find((c) => c.id === 'Q6')!.failures.join()).toMatch(/1 entries for 2 options/);
+  });
+});

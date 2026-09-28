@@ -19,11 +19,13 @@ Each phase ends with something usable. Security and backups come **first**, befo
 - [x] Migration `init`: profiles/roles, tutor↔student links, audit log, RLS + tests. *Content tables wait for Phase 0a.*
 - [x] Nightly backup workflow + monthly restore-test workflow (scripts in `tools/backup`; activate by adding secrets)
 - [x] Sign-in screen (invite-only email code), role-based navigation; student home with **Quick** and **Deep** entry points; tutor home
+- [x] Learning event ledger ([ADR 0009](adr/0009-learning-event-ledger.md)): event schema, `learning_events` table + RLS/immutability tests, answer classification, first evidence summaries; exercises tagged with lemmas and misconceptions
 
 ## Phase 1: Immersive lesson loop (no AI yet)
 - [ ] `LessonContent` zod schema + exercise-type registry (with mode/auto-score metadata)
 - [ ] Immersive player: `listen_repeat`, `multiple_choice`, `describe_image`; Spanish-only UI with hints; lesson-pack download
 - [ ] LocalDb + outbox sync; audio recording on native **and** in the browser (MediaRecorder); upload after each exercise; sync-status indicator
+- [ ] **Emit learning events from day one** (session, presented/answered with latency, hints, replays, lookups, skips, session rating, report problem, screen views) through the outbox; tutor can log live-lesson observations
 - [ ] Tutor: create or edit a lesson by hand, attach photos, assign it to the student
 - [ ] Tutor: review queue, where they listen to recordings and leave text/voice feedback
 - **Outcome:** real deep lessons between the student and tutor, on phone or browser
@@ -47,6 +49,7 @@ Each phase ends with something usable. Security and backups come **first**, befo
 - [ ] Mastery + velocity calculations; goal feasibility and projected completion date
 - [ ] Weekly plan review + triggered re-planning (pace drift, plateau, goal change) → tutor approval
 - [ ] Dashboard views split by mode (immersive quality vs quick retention) + progress against the goal
+- [ ] Learning-data features from the ledger ([LEARNING_DATA.md §3](LEARNING_DATA.md)): words-I-know map, misconception detection → targeted mini-lessons, fluency trend, best time to study, drop-off and bad-content detection
 
 ## Phase 5: Richer media and polish
 - [ ] Video responses (compressed on the device / MediaRecorder, length-limited)

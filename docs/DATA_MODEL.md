@@ -2,6 +2,8 @@
 
 > **Provisional.** The entities the AI needs (goals, curriculum graph, plans, mastery, provenance, lexicon) are defined by [CONTENT_FRAMEWORK.md §8](CONTENT_FRAMEWORK.md). This schema will be finalised after that framework's open questions (§10) are answered.
 
+**Learning data** is recorded in the append-only `learning_events` ledger ([ADR 0009](adr/0009-learning-event-ledger.md), [LEARNING_DATA.md](LEARNING_DATA.md)). That table exists now (migration `20260928000000_learning_events.sql`). The `sessions`, `attempts` and `assessments` below are kept as the *shape of projections* (views or rebuildable tables) over that ledger, not separate sources of truth.
+
 This is a draft. It becomes `supabase/migrations/0001_init.sql` in Phase 0. All ids are UUIDs made by the client. All times are `timestamptz` in UTC.
 
 ## Tables
@@ -34,13 +36,13 @@ media               metadata for each stored file (the bytes live in Storage)
   created_at
   UNIQUE (owner_id, sha256)      ← uploading the same file twice is harmless
 
-sessions            one row per study session (written by the student)
+sessions            PROJECTION of session_* events — one row per study session
   id · student_id · mode ('immersive'|'quick') · assignment_id null (immersive)
   planned_seconds · started_at · ended_at null · platform ('ios'|'android'|'web')
   composer_version text null        ← quick mode: which SessionComposer built it (reproducible)
   created_at · updated_at
 
-attempts            APPEND-ONLY: one row per exercise answer
+attempts            PROJECTION of exercise_answered (+ hints, replays, latency) — one row per answer
   id · student_id · session_id · assignment_id null · lesson_id · lesson_version · exercise_id
   review_item_id null      ← quick-mode drills of an FSRS card
   hints_used int default 0 ← immersive: how often the translation/hint was revealed
@@ -48,7 +50,7 @@ attempts            APPEND-ONLY: one row per exercise answer
   auto_score numeric null  ← deterministic scoring on the device, if the exercise has one
   client_created_at · created_at (server)
 
-assessments         APPEND-ONLY: AI or tutor judgement of an attempt
+assessments         PROJECTION of assessment_recorded — AI or tutor judgement of an attempt
   id · attempt_id · source ('ai'|'tutor') · transcript text null
   score numeric null · feedback jsonb · model text null · created_by · created_at
 

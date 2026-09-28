@@ -5,6 +5,7 @@
 import { z } from 'zod';
 import { CEFR_LEVELS, VARIETIES } from './framework';
 import { OBJECTIVE_ID } from './curriculum';
+import { ErrorTag } from './errors';
 
 export const LESSON_SCHEMA_VERSION = 1;
 
@@ -36,12 +37,21 @@ const ExerciseBase = {
   id,
   stage: z.enum(STAGES),
   objectiveIds: z.array(OBJECTIVE_ID).min(1).describe('Curriculum objectives this exercise practises'),
+  lemmas: z
+    .array(z.string().trim().min(1).max(100))
+    .max(20)
+    .default([])
+    .describe('Dictionary forms of the words this exercise tests; answers become evidence about these words'),
   prompt: Prompt,
   hint: z.string().max(500).optional().describe('English gloss or hint, hidden behind a tap in immersive mode'),
   estSeconds: z.number().int().positive().max(1800).optional(),
 };
 
 const Options = z.array(z.string().trim().min(1).max(200)).min(2).max(6);
+const OptionErrors = z
+  .array(ErrorTag.nullable())
+  .optional()
+  .describe('Per option, the misconception that choosing it reveals (null for the correct option); same length as options');
 
 export const Exercise = z.discriminatedUnion('type', [
   z.object({
@@ -50,13 +60,20 @@ export const Exercise = z.discriminatedUnion('type', [
     direction: z.enum(['es_en', 'en_es', 'image_es']),
     back: z.string().trim().min(1).max(200),
   }),
-  z.object({ ...ExerciseBase, type: z.literal('multiple_choice'), options: Options, correct: z.number().int().min(0) }),
+  z.object({
+    ...ExerciseBase,
+    type: z.literal('multiple_choice'),
+    options: Options,
+    correct: z.number().int().min(0),
+    optionErrors: OptionErrors,
+  }),
   z.object({
     ...ExerciseBase,
     type: z.literal('listen_choose'),
     audioText: spanishText.describe('Spanish spoken to the learner via TTS or recorded audio'),
     options: Options,
     correct: z.number().int().min(0),
+    optionErrors: OptionErrors,
   }),
   z.object({
     ...ExerciseBase,
@@ -114,6 +131,8 @@ export const LessonContent = z
     });
   });
 export type LessonContent = z.infer<typeof LessonContent>;
+/** What an author or AI writes (defaults not yet applied). */
+export type LessonContentInput = z.input<typeof LessonContent>;
 
 /**
  * Provider-neutral JSON Schema of LessonContent (ADR 0008): handed to any LLM as the structured-output
