@@ -108,6 +108,6 @@ Defined in code (`packages/core/src/evidence.ts` for the first ones) and later a
 
 ## 7. Decisions (2026-09-29)
 
-1. **The student sees curated progress only**: streak, minutes, words, challenge readiness and next steps, and the tutor's feedback. **The tutor sees everything**, and can ask an AI with the analytics as context. The AI acts with the tutor's permissions ([ADR 0010](adr/0010-learning-data-visibility.md)).
+1. **In the app, the student sees curated progress only**: streak, minutes, words, challenge readiness and next steps, and the tutor's feedback. **The tutor sees everything**, and can ask an AI with the analytics as context. The AI acts with the tutor's permissions ([ADR 0010](adr/0010-learning-data-visibility.md)). **As the engineer**, the owner reads all raw data through a separate read-only login ([ADR 0013](adr/0013-engineer-raw-data-access.md), OPERATIONS §6).
 2. **Tutored sessions are logged by the tutor** with minimal effort. A suggested plan is shown beforehand; afterwards the tutor confirms what was covered and adds an optional free note or voice note ([ADR 0011](adr/0011-tutored-sessions.md)). Tutor observations count as evidence, and a tutor's *secure* or *struggling* judgement overrides app evidence for readiness.
 3. **Scenario challenges** ("greet a Spanish colleague", "travel to a Spanish-speaking country") give real-world goals with measurable readiness ([ADR 0012](adr/0012-scenario-challenges.md)).

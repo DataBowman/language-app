@@ -15,6 +15,7 @@ Each phase ends with something usable. Security and backups come **first**, befo
 - [x] i18n (en + es); immersive screens switch the UI to Spanish
 - [x] CI: typecheck, lint, unit tests, **web build + Playwright smoke test** (desktop + phone), migrations + RLS tests against Postgres 17
 - [x] Web build with strict CSP headers and a PWA manifest (hosting itself: see [OPERATIONS.md](OPERATIONS.md) §5)
+- [x] Read-only `analytics_reader` role for engineering access to raw data ([ADR 0013](adr/0013-engineer-raw-data-access.md)); create the login per [OPERATIONS.md](OPERATIONS.md) §6
 - [ ] Supabase project; public sign-up **disabled** (done in `config.toml`; dashboard step in [OPERATIONS.md](OPERATIONS.md)); two invited accounts
 - [x] Migration `init`: profiles/roles, tutor↔student links, audit log, RLS + tests. *Content tables wait for Phase 0a.*
 - [x] Nightly backup workflow + monthly restore-test workflow (scripts in `tools/backup`; activate by adding secrets)

@@ -13,6 +13,7 @@ Short, dated records of the important decisions. Do not rewrite an accepted ADR.
 | [0007](0007-two-learning-modes.md) | Two learning modes (immersive and quick) in one app | Accepted |
 | [0008](0008-mcp-provider-agnostic-ai.md) | MCP server as the provider-independent interface between data and any AI | Proposed (scoping amended by 0010) |
 | [0009](0009-learning-event-ledger.md) | Learning event ledger: record raw facts now, derive features later | Accepted (read access amended by 0010) |
-| [0010](0010-learning-data-visibility.md) | Curated progress for the student; full analytics for the tutor and the tutor's AI | Accepted |
+| [0010](0010-learning-data-visibility.md) | Curated progress for the student; full analytics for the tutor and the tutor's AI | Accepted (engineer access added by 0013) |
 | [0011](0011-tutored-sessions.md) | Tutored sessions: suggested plan, confirm-don't-type logging | Accepted |
 | [0012](0012-scenario-challenges.md) | Scenario challenges: real-world goals the curriculum works towards | Accepted |
+| [0013](0013-engineer-raw-data-access.md) | Read-only raw-data access for the engineer | Accepted |

@@ -222,6 +222,7 @@ The tutor can use it on a phone or in a browser. A laptop screen is usually more
 | AI bill abuse, or a bug in a loop | Per-user rate limits in edge functions; a spend cap set in the AI provider's console |
 | Stolen phone | Supabase session tokens kept in `expo-secure-store` (Keychain/Keystore), not in plain storage |
 | XSS in the web app stealing the session (the token is in `localStorage` on the web) | Strict Content-Security-Policy, no third-party scripts or analytics, never render AI output as HTML (plain text only), short token lifetime, PKCE flow |
+| Day-to-day data analysis needing the admin password | A separate read-only `analytics_reader` login for engineering ([ADR 0013](adr/0013-engineer-raw-data-access.md)); the admin password is kept for migrations and restores |
 | Another website calling our functions | CORS on edge functions limited to our web origin; Auth redirect URLs limited to our domains |
 | Vulnerable dependencies | Dependabot / Renovate, and a lockfile committed to git |
 | Accidental destructive migration | Migrations reviewed in PRs; CI applies them to a scratch database; the nightly backup runs before any production migration |

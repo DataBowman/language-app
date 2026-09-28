@@ -128,4 +128,6 @@ Deny by default. Every table has RLS enabled.
 | challenges | read published | full access to their own |
 | suggestions | none | full access for their students |
 
+The read-only **`analytics_reader`** role (engineering, ADR 0013) can SELECT every table and nothing else. Every table with RLS must include an `analytics_reader` read policy; a test enforces it.
+
 `source='ai'` assessments are written only by edge functions using the service role, never directly by clients.

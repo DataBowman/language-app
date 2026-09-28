@@ -92,3 +92,14 @@ Follow `restore-test.sh` step by step, but point the final `psql` commands at th
 ## 5. Web hosting (when ready)
 
 Build with `pnpm build:web` (output: `apps/mobile/dist`) and deploy the folder to **Cloudflare Pages**. `apps/mobile/public/_headers` sets the security headers (strict CSP, no third-party scripts, microphone/camera limited to the site itself). Set `EXPO_PUBLIC_SUPABASE_URL` / `EXPO_PUBLIC_SUPABASE_KEY` as build environment variables. Configure the host to serve `index.html` for unknown paths (single-page app).
+
+## 6. Read-only raw-data access for engineering (ADR 0013)
+
+The app's student account shows curated progress only. For engineering and analysis, create a separate read-only login in the SQL editor (once), with a long random password kept in your password manager:
+
+```sql
+create role engineer_ro login password '<long-random-password>' in role analytics_reader;
+alter role engineer_ro set default_transaction_read_only = on;
+```
+
+Connect with the **session pooler** connection string, using `engineer_ro.<project-ref>` as the user name. For example, with `psql`, a notebook, a dashboard tool, or an AI assistant through a read-only Postgres MCP server. This login sees every table in `public` (all users' events, profiles, audit log). It cannot write, and it cannot see `auth.users`. If it is ever exposed: `drop role engineer_ro;` and create a new one.
