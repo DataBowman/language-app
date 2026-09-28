@@ -227,7 +227,7 @@ enable_confirmations = false
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
-max_frequency = "1s"
+max_frequency = "1m0s"
 # Number of characters used in the email OTP.
 otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
@@ -244,9 +244,11 @@ otp_expiry = 3600
 # sender_name = "Admin"
 
 # The app signs in with a 6-digit code (no links), so the sign-in email must contain {{ .Token }}.
-[auth.email.template.magic_link]
-subject = "Your sign-in code"
-content_path = "./supabase/templates/magic_link.html"
+# Supabase only allows custom templates with a custom SMTP provider (not on the free default sender),
+# so this stays disabled until SMTP is configured (docs/OPERATIONS.md §2.4). Re-enable it then.
+# [auth.email.template.magic_link]
+# subject = "Your sign-in code"
+# content_path = "./supabase/templates/magic_link.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]
